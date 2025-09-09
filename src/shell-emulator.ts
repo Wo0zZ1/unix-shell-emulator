@@ -1,42 +1,42 @@
 import { CommandParser } from './command-parser'
+import { CommandFactory } from './commands/command-factory'
+import { VFSError } from './errors/vfs-error'
+import { VFS } from './vfs'
 
 export class ShellEmulator {
 	private currentDirectory: string = '/'
 	private isRunning: boolean = true
+	private vfs?: VFS
 
-	public execute(input: string): string {
+	constructor() {}
+
+	public async loadVFS(VFSPath?: string): Promise<void> {
+		this.vfs = new VFS()
+		if (VFSPath) return await this.vfs.loadFromXML(VFSPath)
+		this.vfs.loadDefault()
+	}
+
+	public execute(input: string): { output: string; error?: boolean } {
 		input = input.trim()
-		if (!input) return ''
+		if (!input) return { output: '' }
 
 		try {
 			const { command, args } = CommandParser.parse(input)
 
-			switch (command.toLowerCase()) {
-				case 'ls':
-					return this.handleLs(args)
-				case 'cd':
-					return this.handleCd(args)
-				case 'exit':
-					return this.handleExit()
-				default:
-					return `Error: command not found: ${command}`
-			}
+			if (!this.vfs) throw new VFSError("VFS isn't loaded")
+			const commandExecutor = CommandFactory.createCommand(command)
+
+			if (!commandExecutor)
+				return { output: `Error: command not found: ${command}`, error: true }
+
+			return commandExecutor.execute(args, this)
 		} catch (error) {
-			return `Error: ${(error as Error).message}`
+			return { output: `Error: ${(error as Error).message}`, error: true }
 		}
 	}
 
-	private handleLs(args: string[]): string {
-		return `Command 'ls' executed with args: [${args.join(', ')}]`
-	}
-
-	private handleCd(args: string[]): string {
-		return `Command 'cd' executed with args: [${args.join(', ')}]`
-	}
-
-	private handleExit(): string {
+	public terminate(): void {
 		this.isRunning = false
-		return 'Exiting terminal...'
 	}
 
 	public getRunning(): boolean {
@@ -45,5 +45,10 @@ export class ShellEmulator {
 
 	public getCurrentDirectory(): string {
 		return this.currentDirectory
+	}
+
+	public getVFS(): VFS {
+		if (!this.vfs) throw new VFSError("VFS isn't loaded")
+		return this.vfs
 	}
 }

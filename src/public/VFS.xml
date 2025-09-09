@@ -1,0 +1,22 @@
+<vfs name="">
+    <node name="home" type="directory">
+        <node name="user" type="directory">
+            <node name="documents" type="directory">
+                <node name="readme.txt" type="file">
+                    <content encoding="text">Welcome to VFS!</content>
+                </node>
+                <node name="config.json" type="file">
+                    <content encoding="text">{"version": "1.0"}</content>
+                </node>
+            </node>
+            <node name="image.png" type="file">
+                <content encoding="base64">0K8g0LfQsNC60L7QtNC40YDQvtCy0LDQvdC90YvQuSDRgtC10LrRgdGCINCyIEJhc2U2NA==</content>
+            </node>
+        </node>
+    </node>
+    <node name="bin" type="directory">
+        <node name="script.sh" type="file">
+            <content encoding="text">#!/bin/bash\necho "Hello"</content>
+        </node>
+    </node>
+</vfs>

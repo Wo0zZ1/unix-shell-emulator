@@ -1,0 +1,6 @@
+pwd
+ls
+ls home
+cd home/user
+pwd
+ls
