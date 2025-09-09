@@ -1,0 +1,26 @@
+{
+	"name": "terminal-emulator",
+	"version": "0.1",
+	"main": "src/main.ts",
+	"license": "MIT",
+	"type": "commonjs",
+	"scripts": {
+		"build:main": "tsc",
+		"build:renderer": "esbuild src/renderer.ts --bundle --outfile=dist/renderer.js --platform=browser --target=es2020",
+		"build": "npm run build:main && npm run build:renderer && npm run copy:public",
+		"copy:public": "shx cp -r src/public dist",
+		"start": "npm run build && electron dist/main.js"
+	},
+	"author": {
+		"name": "Max",
+		"email": "Mper06@mail.ru"
+	},
+	"devDependencies": {
+		"@types/node": "^24.3.1",
+		"electron": "^38.0.0",
+		"electron-builder": "^26.0.12",
+		"esbuild": "^0.25.9",
+		"shx": "^0.4.0",
+		"typescript": "^5.9.2"
+	}
+}
