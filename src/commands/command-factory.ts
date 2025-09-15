@@ -4,6 +4,8 @@ import { LsCommand } from './ls.command'
 import { CdCommand } from './cd.command'
 import { ExitCommand } from './exit.command'
 import { PWDCommand } from './pwd.command'
+import { RmDirCommand } from './rmdir.command'
+import { MvCommand } from './mv.command'
 
 export class CommandFactory {
 	static createCommand(commandName: string): BaseCommand | null {
@@ -12,6 +14,8 @@ export class CommandFactory {
 			cd: CdCommand,
 			exit: ExitCommand,
 			pwd: PWDCommand,
+			rmdir: RmDirCommand,
+			mv: MvCommand,
 		}
 
 		const CommandClass = commandMap[commandName.toLowerCase()]

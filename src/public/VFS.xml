@@ -2,6 +2,9 @@
     <node name="home" type="directory">
         <node name="user" type="directory">
             <node name="documents" type="directory">
+                <node name="temp" type="directory">
+                
+                </node>
                 <node name="readme.txt" type="file">
                     <content encoding="text">Welcome to VFS!</content>
                 </node>

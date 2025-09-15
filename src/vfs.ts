@@ -1,5 +1,6 @@
 import {
 	VFSDirectoryNotFound,
+	VFSError,
 	VFSFileOrDirectoryNotFound,
 	VFSFormatError,
 	VFSLoadingError,
@@ -10,6 +11,7 @@ export interface VFSNode {
 	name: string
 	type: 'file' | 'directory'
 	content?: string // for files
+	parent?: VFSNode
 	children?: VFSNode[] // for directories
 }
 
@@ -22,7 +24,12 @@ export class VFS {
 	}
 
 	public loadDefault(): void {
-		this.root = { name: '', type: 'directory', children: DEFAULT_VFS_STRUCTURE }
+		this.root = {
+			name: '',
+			type: 'directory',
+			parent: undefined,
+			children: DEFAULT_VFS_STRUCTURE,
+		}
 	}
 
 	public async loadFromXML(VFSPath: string): Promise<void> {
@@ -151,6 +158,67 @@ export class VFS {
 		if (node.type !== 'directory') throw new VFSDirectoryNotFound(targetPath)
 
 		this.currentPath = targetPath
+	}
+
+	public deleteDirectory(path: string): boolean {
+		const targetPath = this.resolvePath(path)
+		const node = this.getNode(targetPath)
+
+		if (!node) throw new VFSFileOrDirectoryNotFound(targetPath)
+		if (node.type !== 'directory') throw new VFSDirectoryNotFound(targetPath)
+		if (node.children && node.children.length > 0)
+			throw new VFSError(`directory not empty: ${path}`)
+
+		const parentPath = targetPath.split('/').slice(0, -1).join('/') || '/'
+		const parentNode = this.getNode(parentPath)
+
+		if (parentNode && parentNode.type === 'directory' && parentNode.children) {
+			const index = parentNode.children.findIndex(child => child.name === node.name)
+
+			if (index !== -1) {
+				parentNode.children.splice(index, 1)
+				return true
+			}
+		}
+
+		return false
+	}
+
+	private deleteNode(path: string): boolean {
+		const targetPath = this.resolvePath(path)
+		const node = this.getNode(targetPath)
+
+		if (!node) throw new VFSFileOrDirectoryNotFound(targetPath)
+
+		const parentPath = targetPath.split('/').slice(0, -1).join('/') || '/'
+		const parentNode = this.getNode(parentPath)
+
+		if (parentNode && parentNode.type === 'directory' && parentNode.children) {
+			const index = parentNode.children.findIndex(child => child.name === node.name)
+
+			if (index !== -1) {
+				parentNode.children.splice(index, 1)
+				return true
+			}
+		}
+
+		return false
+	}
+
+	public moveNode(pathFrom: string, pathTo: string): boolean {
+		const globalPathFrom = this.resolvePath(pathFrom)
+		const globalPathTo = this.resolvePath(pathTo)
+		const node = this.getNode(globalPathFrom)
+		const destDir = this.getNode(globalPathTo)
+
+		if (!node) throw new VFSFileOrDirectoryNotFound(globalPathFrom)
+		if (!destDir) throw new VFSFileOrDirectoryNotFound(globalPathFrom)
+		if (destDir.type !== 'directory') throw new VFSDirectoryNotFound(globalPathFrom)
+
+		const success = this.deleteNode(globalPathFrom)
+		if (!success) return false
+		destDir.children?.push(node)
+		return true
 	}
 
 	public getCurrentDirectory(): string {
