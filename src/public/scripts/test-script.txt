@@ -1,6 +1,5 @@
 pwd
-ls
-ls home
-cd home/user
+mkdir temp
+touch t1 t2 t3
 pwd
 ls

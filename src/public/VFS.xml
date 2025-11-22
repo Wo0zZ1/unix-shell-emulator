@@ -1,4 +1,4 @@
-<vfs name="">
+<vfs name="root">
     <node name="home" type="directory">
         <node name="user" type="directory">
             <node name="documents" type="directory">
