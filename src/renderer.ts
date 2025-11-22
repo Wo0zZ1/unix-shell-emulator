@@ -1,15 +1,17 @@
-import { ShellEmulator } from './shell-emulator'
-import { minmax } from './utils'
 import { type AppConfig } from './main'
+
+import { HistoryManager } from './history-manager'
+import { ShellEmulator } from './shell-emulator'
+
 import { getErrorMessage } from './errors/error-handler'
 
 export class TerminalRenderer {
+	private shell!: ShellEmulator
+	private historyManager = new HistoryManager()
+
 	private terminal: HTMLElement
 	private prompt: HTMLElement
 	private input: HTMLInputElement
-	private shell!: ShellEmulator
-	private commandHistory: string[] = []
-	private historyIndex: number = -1
 	private customPrompt: string = '$'
 
 	constructor() {
@@ -23,7 +25,6 @@ export class TerminalRenderer {
 
 	private async init() {
 		const config = await window.electronAPI.getAppConfig()
-		this.shell = new ShellEmulator()
 		await this.applyConfig(config)
 		this.printWelcomeMessage()
 	}
@@ -45,7 +46,7 @@ export class TerminalRenderer {
 	private async downloadVFS(VFSPath: string): Promise<void> {
 		try {
 			this.printLine('Trying to download VFS configuration...')
-			await this.shell.loadVFS(VFSPath)
+			this.shell = await ShellEmulator.create(VFSPath)
 			this.printLine(`VFS configuration successfully loaded`)
 		} catch (error) {
 			const errorMessage = getErrorMessage(error)
@@ -55,7 +56,7 @@ export class TerminalRenderer {
 	}
 
 	private async downloadDefaultVFS(): Promise<void> {
-		await this.shell.loadVFS()
+		this.shell = await ShellEmulator.create()
 		this.printLine(`Loaded default VFS configuration`)
 	}
 
@@ -101,11 +102,11 @@ export class TerminalRenderer {
 				break
 			case 'ArrowUp':
 				e.preventDefault()
-				this.navigateHistory(-1)
+				this.navigateHistoryUp()
 				break
 			case 'ArrowDown':
 				e.preventDefault()
-				this.navigateHistory(1)
+				this.navigateHistoryDown()
 				break
 			case 'Tab':
 				// TODO РЕАЛИЗОВАТЬ АВТОДОПОЛНЕНИЕ
@@ -122,14 +123,12 @@ export class TerminalRenderer {
 			const result = this.shell.execute(command)
 			if (result.error) withError = true
 			if (!safeMode || !result.error) {
-				this.addToHistory(command)
-				this.resetHistoryIndex()
+				this.historyManager.add(command)
 				this.printPrompt(command)
 				this.printLine(result.output)
 				if (result.extra?.clearTerminal) this.clearTerminal()
 			}
 		} else {
-			this.resetHistoryIndex()
 			this.printPrompt(command)
 		}
 
@@ -139,27 +138,24 @@ export class TerminalRenderer {
 		return withError
 	}
 
-	private addToHistory(command: string): void {
-		if (this.commandHistory[this.commandHistory.length - 1] !== command)
-			this.commandHistory.push(command)
+	private navigateHistoryUp(): void {
+		const previousCommand = this.historyManager.getPrevious()
+		if (previousCommand !== null) {
+			this.setInputValue(previousCommand)
+			this.moveCursorToEnd()
+		}
 	}
 
-	private navigateHistory(direction: number): void {
-		this.historyIndex = minmax(
-			0,
-			this.commandHistory.length,
-			this.historyIndex + direction,
-		)
+	private navigateHistoryDown(): void {
+		const nextCommand = this.historyManager.getNext()
+		if (nextCommand !== null) {
+			this.setInputValue(nextCommand)
+			this.moveCursorToEnd()
+		}
+	}
 
-		if (this.historyIndex < this.commandHistory.length)
-			this.input.value = this.commandHistory[this.historyIndex]
-		else this.input.value = ''
-
+	private moveCursorToEnd(): void {
 		this.input.setSelectionRange(this.input.value.length, this.input.value.length)
-	}
-
-	private resetHistoryIndex(): void {
-		this.historyIndex = this.commandHistory.length
 	}
 
 	private printWelcomeMessage(): void {

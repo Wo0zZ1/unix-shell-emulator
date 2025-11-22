@@ -1,4 +1,4 @@
-import { CommandRegistry } from './commandRegistry'
+import { CommandRegistry } from './command-registry'
 import type { BaseCommand } from './base-command'
 
 import { LsCommand } from './ls.command'

@@ -1,6 +1,5 @@
+import { CommandFactory } from './commands/command-factory'
 import { CommandParser } from './command-parser'
-import { CommandFactory } from './commands/commandFactory'
-import { VFSError } from './errors/vfs-error'
 import { VFS } from './vfs'
 
 export interface IExecuteResponse {
@@ -10,19 +9,20 @@ export interface IExecuteResponse {
 }
 
 export class ShellEmulator {
+	private vfs: VFS
 	private currentDirectory: string = '/'
 	private isRunning: boolean = true
-	private vfs?: VFS
-	private commandFactory: CommandFactory
+	private commandFactory = new CommandFactory()
 
-	constructor() {
-		this.commandFactory = new CommandFactory()
+	constructor(vfs: VFS) {
+		this.vfs = vfs
 	}
 
-	public async loadVFS(VFSPath?: string): Promise<void> {
-		this.vfs = new VFS()
-		if (VFSPath) return await this.vfs.loadFromXML(VFSPath)
-		this.vfs.loadDefault()
+	public static async create(vfsPath?: string): Promise<ShellEmulator> {
+		const vfs = new VFS()
+		if (vfsPath) await vfs.loadFromXML(vfsPath)
+		else vfs.loadDefault()
+		return new ShellEmulator(vfs)
 	}
 
 	public execute(input: string): IExecuteResponse {
@@ -32,7 +32,6 @@ export class ShellEmulator {
 		try {
 			const { command, args } = CommandParser.parse(input)
 
-			if (!this.vfs) throw new VFSError("VFS isn't loaded")
 			const commandExecutor = this.commandFactory.getCommand(command)
 
 			if (!commandExecutor)
@@ -57,7 +56,6 @@ export class ShellEmulator {
 	}
 
 	public getVFS(): VFS {
-		if (!this.vfs) throw new VFSError("VFS isn't loaded")
 		return this.vfs
 	}
 }
