@@ -36,6 +36,7 @@ const argv = yargs
 		description: 'Run command parser tests without launching GUI',
 		alias: ['t'],
 	})
+	.locale('en')
 	.parse() as IAppArgs
 
 console.log('Command line parameters:')
