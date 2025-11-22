@@ -10,6 +10,7 @@ import { MkdirCommand } from './mkdir.command'
 import { TouchCommand } from './touch.command'
 import { CatCommand } from './cat.command'
 import { RmCommand } from './rm.command'
+import { ClearCommand } from './clear.command'
 
 export class CommandFactory {
 	static createCommand(commandName: string): BaseCommand | null {
@@ -24,7 +25,7 @@ export class CommandFactory {
 			rm: RmCommand,
 			mv: MvCommand,
 			cat: CatCommand,
-			// man: ManCommand
+			clear: ClearCommand,
 		}
 
 		const CommandClass = commandMap[commandName.toLowerCase()]

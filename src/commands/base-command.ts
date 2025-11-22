@@ -1,4 +1,4 @@
-import type { ShellEmulator } from '../shell-emulator'
+import type { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { Command } from './command.interface'
 
 export interface IBaseCommandOptions {
@@ -6,10 +6,7 @@ export interface IBaseCommandOptions {
 }
 
 export abstract class BaseCommand implements Command {
-	abstract execute(
-		args: string[],
-		shell: ShellEmulator,
-	): { output: string; error?: boolean }
+	abstract execute(args: string[], shell: ShellEmulator): IExecuteResponse
 
 	abstract getName(): string
 

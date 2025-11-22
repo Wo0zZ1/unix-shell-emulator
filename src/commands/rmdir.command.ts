@@ -1,4 +1,4 @@
-import { ShellEmulator } from '../shell-emulator'
+import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
 export interface IRmdirCommandOptions extends IBaseCommandOptions {
@@ -14,7 +14,7 @@ export class RmDirCommand extends BaseCommand {
 		return 'Remove an empty directory'
 	}
 
-	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
+	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 1)
 			const filePaths = args

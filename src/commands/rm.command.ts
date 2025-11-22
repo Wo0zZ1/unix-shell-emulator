@@ -1,4 +1,4 @@
-import { ShellEmulator } from '../shell-emulator'
+import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 import { ILsCommandOptions } from './ls.command'
 
@@ -15,7 +15,7 @@ export class RmCommand extends BaseCommand {
 		return 'Remove files or directories (use -r for directories)'
 	}
 
-	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
+	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 1)
 

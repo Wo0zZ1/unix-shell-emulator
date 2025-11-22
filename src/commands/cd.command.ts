@@ -1,4 +1,4 @@
-import { ShellEmulator } from '../shell-emulator'
+import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand } from './base-command'
 
 export class CdCommand extends BaseCommand {
@@ -10,7 +10,7 @@ export class CdCommand extends BaseCommand {
 		return 'Change the current working directory'
 	}
 
-	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
+	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 1, 1)
 			shell.getVFS().changeDirectory(args[0])

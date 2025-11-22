@@ -123,8 +123,10 @@ export class TerminalRenderer {
 			if (result.error) withError = true
 			if (!safeMode || !result.error) {
 				this.addToHistory(command)
+				this.resetHistoryIndex()
 				this.printPrompt(command)
 				this.printLine(result.output)
+				if (result.extra?.clearTerminal) this.clearTerminal()
 			}
 		} else {
 			this.resetHistoryIndex()
@@ -140,7 +142,6 @@ export class TerminalRenderer {
 	private addToHistory(command: string): void {
 		if (this.commandHistory[this.commandHistory.length - 1] !== command)
 			this.commandHistory.push(command)
-		this.resetHistoryIndex()
 	}
 
 	private navigateHistory(direction: number): void {
@@ -175,6 +176,10 @@ export class TerminalRenderer {
 		const line = document.createElement('div')
 		line.textContent = text
 		this.terminal.appendChild(line)
+	}
+
+	private clearTerminal(): void {
+		this.terminal.innerHTML = ''
 	}
 
 	private getInputValue(): string {

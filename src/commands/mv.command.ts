@@ -1,5 +1,5 @@
 import { VFSError } from '../errors/vfs-error'
-import { ShellEmulator } from '../shell-emulator'
+import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
 export interface IMvCommandOptions extends IBaseCommandOptions {}
@@ -13,7 +13,7 @@ export class MvCommand extends BaseCommand {
 		return 'Move files and directories'
 	}
 
-	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
+	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 2)
 

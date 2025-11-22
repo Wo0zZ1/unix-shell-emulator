@@ -1,4 +1,4 @@
-import { ShellEmulator } from '../shell-emulator'
+import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand } from './base-command'
 
 export class ExitCommand extends BaseCommand {
@@ -10,7 +10,7 @@ export class ExitCommand extends BaseCommand {
 		return 'Terminate the terminal emulator session'
 	}
 
-	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
+	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 0, 0)
 			shell.terminate()

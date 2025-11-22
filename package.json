@@ -10,10 +10,11 @@
 		"copy:public": "shx mkdir -p dist/public && shx cp -r src/public/* dist/public",
 		"build": "npm run build:main && npm run build:renderer && npm run copy:public",
 		"start": "electron dist/main.js",
+    "start:dev": "electron dist/main.js --vfs \"VFS.xml\"",
 		"test:base": "scripts/test-base.bat",
 		"test:script": "scripts/test-script.bat",
 		"test:vfs": "scripts/test-vfs.bat",
-		"test": "scripts/test.bat"
+		"test": "npm run start"
 	},
 	"author": {
 		"name": "Max",

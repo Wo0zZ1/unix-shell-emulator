@@ -1,22 +1,21 @@
 import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand } from './base-command'
 
-export class PWDCommand extends BaseCommand {
+export class ClearCommand extends BaseCommand {
 	getName(): string {
-		return 'pwd'
+		return 'clear'
 	}
 
 	getDescription(): string {
-		return 'Print working directory'
+		return 'Clear screen'
 	}
 
 	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 0, 0)
-			const output = shell.getVFS().getCurrentDirectory()
-			return { output }
+			return { output: '', extra: { clearTerminal: true } }
 		} catch (error) {
-			return { output: `pwd: ${(error as Error).message}`, error: true }
+			return { output: `clear: ${(error as Error).message}`, error: true }
 		}
 	}
 }

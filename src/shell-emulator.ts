@@ -3,6 +3,12 @@ import { CommandFactory } from './commands/command-factory'
 import { VFSError } from './errors/vfs-error'
 import { VFS } from './vfs'
 
+export interface IExecuteResponse {
+	output: string
+	error?: boolean
+	extra?: { clearTerminal?: boolean }
+}
+
 export class ShellEmulator {
 	private currentDirectory: string = '/'
 	private isRunning: boolean = true
@@ -16,7 +22,7 @@ export class ShellEmulator {
 		this.vfs.loadDefault()
 	}
 
-	public execute(input: string): { output: string; error?: boolean } {
+	public execute(input: string): IExecuteResponse {
 		input = input.trim()
 		if (!input) return { output: '' }
 
