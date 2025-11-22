@@ -5,6 +5,7 @@ body {
 	margin: 0;
 	padding: 10px;
 }
+
 #terminal {
 	font-family: monospace, 'Courier New';
 	font-size: 20px;
@@ -12,11 +13,18 @@ body {
 	overflow-y: auto;
 	white-space: pre-wrap;
 }
+
+#terminal::-webkit-scrollbar {
+	width: 0px;
+	background: transparent;
+}
+
 #input-line {
 	height: 40px;
 	display: flex;
 	align-items: center;
 }
+
 #prompt {
 	font-family: monospace, 'Courier New';
 	font-size: 20px;
@@ -24,6 +32,7 @@ body {
 	color: #4ec9b0;
 	margin-right: 5px;
 }
+
 #command-input {
 	font-family: monospace, 'Courier New';
 	font-size: 20px;
