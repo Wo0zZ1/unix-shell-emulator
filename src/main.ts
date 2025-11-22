@@ -3,7 +3,7 @@ import { CommandParser } from './command-parser'
 import * as path from 'path'
 import * as os from 'os'
 import * as fs from 'fs'
-import * as yargs from 'yargs'
+import yargs from 'yargs/yargs'
 
 interface IAppArgs {
 	vfsPath?: string
@@ -14,8 +14,7 @@ interface IAppArgs {
 
 export type AppConfig = IAppArgs
 
-const argv = yargs
-	.default(process.argv.slice(2))
+const argv = yargs(process.argv.slice(2))
 	.option('vfs-path', {
 		type: 'string',
 		description: 'Path to VFS XML file',
@@ -50,7 +49,6 @@ const createWindow = () => {
 		height: 900,
 		center: true,
 		autoHideMenuBar: true,
-		alwaysOnTop: true,
 		webPreferences: {
 			nodeIntegration: false,
 			contextIsolation: true,
