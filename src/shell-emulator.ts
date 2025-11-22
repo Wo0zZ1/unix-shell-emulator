@@ -1,5 +1,5 @@
 import { CommandParser } from './command-parser'
-import { CommandFactory } from './commands/command-factory'
+import { CommandFactory } from './commands/commandFactory'
 import { VFSError } from './errors/vfs-error'
 import { VFS } from './vfs'
 
@@ -13,8 +13,11 @@ export class ShellEmulator {
 	private currentDirectory: string = '/'
 	private isRunning: boolean = true
 	private vfs?: VFS
+	private commandFactory: CommandFactory
 
-	constructor() {}
+	constructor() {
+		this.commandFactory = new CommandFactory()
+	}
 
 	public async loadVFS(VFSPath?: string): Promise<void> {
 		this.vfs = new VFS()
@@ -30,7 +33,7 @@ export class ShellEmulator {
 			const { command, args } = CommandParser.parse(input)
 
 			if (!this.vfs) throw new VFSError("VFS isn't loaded")
-			const commandExecutor = CommandFactory.createCommand(command)
+			const commandExecutor = this.commandFactory.getCommand(command)
 
 			if (!commandExecutor)
 				return { output: `Error: command not found: ${command}`, error: true }

@@ -1,7 +1,7 @@
 import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand } from './base-command'
 
-export class PWDCommand extends BaseCommand {
+export class PwdCommand extends BaseCommand {
 	getName(): string {
 		return 'pwd'
 	}

@@ -5,7 +5,7 @@ export interface IRmdirCommandOptions extends IBaseCommandOptions {
 	parents: boolean
 }
 
-export class RmDirCommand extends BaseCommand {
+export class RmdirCommand extends BaseCommand {
 	getName(): string {
 		return 'rmdir'
 	}
