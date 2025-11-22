@@ -31,8 +31,46 @@ export class VFSFileNotFound extends VFSError {
 	}
 }
 
+export class VFSFileAlreadyExists extends VFSError {
+	constructor(path: string) {
+		super(`file already exists: ${path}`)
+	}
+}
+
 export class VFSDirectoryNotFound extends VFSError {
 	constructor(path: string) {
 		super(`no such directory: ${path}`)
+	}
+}
+
+export class VFSDirectoryAlreadyExists extends VFSError {
+	constructor(path: string) {
+		super(`directory already exists: ${path}`)
+	}
+}
+
+export class VFSFileOrDirectoryAlreadyExists extends VFSError {
+	constructor(path: string) {
+		super(`file or directory already exists: ${path}`)
+	}
+}
+
+export class VFSDirectoryIsBusy extends VFSError {
+	constructor(path: string) {
+		super(`directory is busy: ${path}`)
+	}
+}
+
+export class VFSPathEscapesRoot extends VFSError {
+	constructor() {
+		super('path escapes root')
+		this.name = 'VFSPathEscapesRoot'
+	}
+}
+
+export class VFSInvalidPath extends VFSError {
+	constructor(path: string) {
+		super(`invalid path: ${path}`)
+		this.name = 'VFSInvalidPath'
 	}
 }

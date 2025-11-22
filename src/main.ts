@@ -45,8 +45,11 @@ console.log('\tScript Path:', argv.scriptPath || 'Not specified')
 
 const createWindow = () => {
 	const mainWindow = new BrowserWindow({
-		width: 600,
-		height: 800,
+		width: 800,
+		height: 900,
+		center: true,
+		autoHideMenuBar: true,
+		alwaysOnTop: true,
 		webPreferences: {
 			nodeIntegration: false,
 			contextIsolation: true,

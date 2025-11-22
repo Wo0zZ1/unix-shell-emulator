@@ -6,6 +6,10 @@ import { ExitCommand } from './exit.command'
 import { PWDCommand } from './pwd.command'
 import { RmDirCommand } from './rmdir.command'
 import { MvCommand } from './mv.command'
+import { MkdirCommand } from './mkdir.command'
+import { TouchCommand } from './touch.command'
+import { CatCommand } from './cat.command'
+import { RmCommand } from './rm.command'
 
 export class CommandFactory {
 	static createCommand(commandName: string): BaseCommand | null {
@@ -14,8 +18,13 @@ export class CommandFactory {
 			cd: CdCommand,
 			exit: ExitCommand,
 			pwd: PWDCommand,
+			mkdir: MkdirCommand,
 			rmdir: RmDirCommand,
+			touch: TouchCommand,
+			rm: RmCommand,
 			mv: MvCommand,
+			cat: CatCommand,
+			// man: ManCommand
 		}
 
 		const CommandClass = commandMap[commandName.toLowerCase()]

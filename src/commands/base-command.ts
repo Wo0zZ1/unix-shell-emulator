@@ -1,6 +1,10 @@
 import type { ShellEmulator } from '../shell-emulator'
 import { Command } from './command.interface'
 
+export interface IBaseCommandOptions {
+	help: boolean
+}
+
 export abstract class BaseCommand implements Command {
 	abstract execute(
 		args: string[],

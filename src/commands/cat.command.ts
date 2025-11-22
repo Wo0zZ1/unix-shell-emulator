@@ -1,23 +1,23 @@
 import { ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
-export interface ILsCommandOptions extends IBaseCommandOptions {}
+export interface ICatCommandOptions extends IBaseCommandOptions {}
 
-export class LsCommand extends BaseCommand {
+export class CatCommand extends BaseCommand {
 	getName(): string {
-		return 'ls'
+		return 'cat'
 	}
 
 	getDescription(): string {
-		return 'List directory contents'
+		return "Print the file's content"
 	}
 
 	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
 		try {
-			this.validateArgs(args, 0, 1)
-			const path = args[0] as string | undefined
+			this.validateArgs(args, 1, 1)
+			const path = args[0]
 
-			const options: ILsCommandOptions = {
+			const options: ICatCommandOptions = {
 				help: false,
 			}
 
@@ -27,10 +27,10 @@ export class LsCommand extends BaseCommand {
 
 			if (options.help) return { output: this.getDescription() }
 
-			const output = shell.getVFS().listDirectory(path)
-			return { output }
+			const content = shell.getVFS().catFile(path)
+			return { output: content }
 		} catch (error) {
-			return { output: `ls ${(error as Error).message}`, error: true }
+			return { output: `cat: ${(error as Error).message}`, error: true }
 		}
 	}
 }

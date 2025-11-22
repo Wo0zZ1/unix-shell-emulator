@@ -1,6 +1,8 @@
 import { VFSError } from '../errors/vfs-error'
 import { ShellEmulator } from '../shell-emulator'
-import { BaseCommand } from './base-command'
+import { BaseCommand, IBaseCommandOptions } from './base-command'
+
+export interface IMvCommandOptions extends IBaseCommandOptions {}
 
 export class MvCommand extends BaseCommand {
 	getName(): string {
@@ -13,15 +15,36 @@ export class MvCommand extends BaseCommand {
 
 	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
 		try {
-			this.validateArgs(args, 2, 2)
+			this.validateArgs(args, 2)
 
-			const sourcePath = args[0]
-			const destPath = args[1]
-			const success = shell.getVFS().moveNode(sourcePath, destPath)
+			const paths: string[] = []
 
-			if (!success) throw new VFSError(`failed to move ${sourcePath} to ${destPath}`)
+			const options: IMvCommandOptions = {
+				help: false,
+			}
 
-			return { output: '' }
+			for (const arg of args) {
+				if (arg === '-h' || arg === '--help') options.help = true
+				else paths.push(arg)
+			}
+
+			if (options.help) return { output: this.getDescription() }
+
+			const sourcePaths = paths.slice(0, -1)
+			const destPath = paths[paths.length - 1]
+
+			const output: string[] = []
+			for (const sourcePath of sourcePaths) {
+				try {
+					shell
+						.getVFS()
+						.moveFileOrDirectory(sourcePath, destPath, sourcePaths.length === 1)
+				} catch (error) {
+					output.push(`failed to move: ${(error as Error).message}`)
+				}
+			}
+
+			return { output: output.join('\n') }
 		} catch (error) {
 			return { output: `mv: ${(error as Error).message}`, error: true }
 		}

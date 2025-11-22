@@ -1,32 +1,34 @@
 import { ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
-export interface IRmdirCommandOptions extends IBaseCommandOptions {
+export interface IMkdirCommandOptions extends IBaseCommandOptions {
 	parents: boolean
 }
 
-export class RmDirCommand extends BaseCommand {
+export class MkdirCommand extends BaseCommand {
 	getName(): string {
-		return 'rmdir'
+		return 'mkdir'
 	}
 
 	getDescription(): string {
-		return 'Remove an empty directory'
+		return 'Create an empty directory(s)'
 	}
 
 	execute(args: string[], shell: ShellEmulator): { output: string; error?: boolean } {
 		try {
 			this.validateArgs(args, 1)
-			const filePaths = args
 
-			const options: IRmdirCommandOptions = {
+			const options: IMkdirCommandOptions = {
 				parents: false,
 				help: false,
 			}
 
+			const filePaths: string[] = []
+
 			for (const arg of args) {
 				if (arg === '-p' || arg === '--parents') options.parents = true
 				else if (arg === '-h' || arg === '--help') options.help = true
+				else filePaths.push(arg)
 			}
 
 			if (options.help) return { output: this.getDescription() }
@@ -34,15 +36,15 @@ export class RmDirCommand extends BaseCommand {
 			const output: string[] = []
 			for (const filePath of filePaths) {
 				try {
-					shell.getVFS().deleteDirectory(filePath)
+					shell.getVFS().createDirectory(filePath, options)
 				} catch (error) {
-					output.push(`failed to remove directory: ${(error as Error).message}`)
+					output.push(`failed to create directory: ${(error as Error).message}`)
 				}
 			}
 
 			return { output: output.join('\n') }
 		} catch (error) {
-			return { output: `rmdir: ${(error as Error).message}`, error: true }
+			return { output: `mkdir: ${(error as Error).message}`, error: true }
 		}
 	}
 }
