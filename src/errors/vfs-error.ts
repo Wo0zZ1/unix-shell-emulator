@@ -74,3 +74,16 @@ export class VFSInvalidPath extends VFSError {
 		this.name = 'VFSInvalidPath'
 	}
 }
+export class VFSNotADirectory extends VFSError {
+	constructor(path: string) {
+		super(`not a directory: ${path}`)
+		this.name = 'VFSNotADirectory'
+	}
+}
+
+export class VFSNotAFile extends VFSError {
+	constructor(path: string) {
+		super(`not a file: ${path}`)
+		this.name = 'VFSNotAFile'
+	}
+}

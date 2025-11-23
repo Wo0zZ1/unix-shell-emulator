@@ -1,5 +1,3 @@
-import { IMkdirCommandOptions } from './commands/mkdir.command'
-import { IRmCommandOptions } from './commands/rm.command'
 import {
 	VFSDirectoryAlreadyExists,
 	VFSDirectoryIsBusy,
@@ -13,8 +11,10 @@ import {
 	VFSLoadingError,
 	VFSInvalidPath,
 	VFSPathEscapesRoot,
+	VFSNotAFile,
 } from './errors/vfs-error'
 import { DEFAULT_VFS_STRUCTURE } from './vfs-default'
+import VFSParser from './vfs-praser'
 
 export interface VFSDirectoryNode extends VFSBaseNode {
 	type: 'directory'
@@ -32,99 +32,45 @@ export interface VFSBaseNode {
 
 export type VFSNode = VFSDirectoryNode | VFSFileNode
 
+export interface VFSCreateOptions {
+	recursive?: boolean
+}
+
+export interface VFSDeleteOptions {
+	recursive?: boolean
+	force?: boolean
+}
+
+export interface VFSMoveOptions {
+	rename?: boolean
+}
+
 export class VFS {
 	private root!: VFSDirectoryNode
-	private currentPath: string
+	private currentPath: string = '/'
 
-	constructor() {
-		this.currentPath = '/'
+	constructor(root: VFSDirectoryNode) {
+		this.root = root
 	}
 
-	public loadDefault(): void {
-		this.root = {
+	public static loadDefault(): VFS {
+		const root: VFSDirectoryNode = {
 			name: 'root',
 			type: 'directory',
 			children: DEFAULT_VFS_STRUCTURE,
 		} as VFSDirectoryNode
+		return new VFS(root)
 	}
 
-	public async loadFromXML(VFSPath: string): Promise<void> {
+	public static async loadFromXML(VFSPath: string): Promise<VFS> {
 		if (!VFSPath.endsWith('.xml')) throw new VFSFormatError('.xml')
 		const file = await window.electronAPI.readFile(VFSPath.trim())
 		const fileContent = file.toString()
-		this.root = VFS.parseXML(fileContent)
+		const root = VFSParser.parseXML(fileContent)
+		return new VFS(root)
 	}
 
-	private static parseXML(xmlContent: string): VFSDirectoryNode {
-		try {
-			const parser = new DOMParser()
-			const xmlDoc = parser.parseFromString(xmlContent, 'text/xml')
-
-			const parseError = xmlDoc.getElementsByTagName('parsererror')[0]
-			if (parseError) throw new VFSFormatError('invalid XML structure')
-
-			const rootElement = xmlDoc.documentElement
-			if (rootElement.nodeName !== 'vfs')
-				throw new VFSFormatError('root element must be <vfs>')
-
-			const childElements = rootElement.children
-
-			const rootNode = {
-				name: rootElement.getAttribute('name'),
-				type: 'directory',
-				children: [],
-			} as VFSDirectoryNode
-			for (let i = 0; i < childElements.length; i++) {
-				const childNode = this.parseVFSNode(childElements[i])
-				rootNode.children.push(childNode)
-			}
-
-			return rootNode
-		} catch (error) {
-			if (error instanceof VFSFormatError) throw error
-			throw new VFSLoadingError(`XML parsing failed: ${(error as Error).message}`)
-		}
-	}
-
-	private static parseVFSNode(element: Element): VFSNode {
-		const name = element.getAttribute('name')
-		if (!name) throw new VFSFormatError('node must have a name attribute')
-
-		const type = element.getAttribute('type')
-		if (type !== 'file' && type !== 'directory')
-			throw new VFSFormatError('node must have type "file" or "directory"')
-
-		let node = { name, type } as VFSNode
-		if (type === 'file') {
-			const contentElement = element.getElementsByTagName('content')[0]
-			if (!contentElement)
-				throw new VFSFormatError('file node must have <conent> element')
-			const encoding = contentElement.getAttribute('encoding')
-			let content = contentElement.textContent || ''
-			if (encoding === 'base64')
-				try {
-					content = atob(content)
-				} catch (error) {
-					throw new VFSFormatError('invalid base64 encoding')
-				}
-			else if (encoding && encoding !== 'text')
-				throw new VFSFormatError(`unsupported encoding: ${encoding}`)
-
-			node = { ...node, content } as VFSFileNode
-		} else {
-			node = { ...node, children: [] } as VFSDirectoryNode
-			const childElements = element.children
-
-			for (let i = 0; i < childElements.length; i++) {
-				const childNode = this.parseVFSNode(childElements[i])
-				node.children.push(childNode)
-			}
-		}
-
-		return node
-	}
-
-	public listDirectory(path?: string): string {
+	public list(path?: string): string {
 		console.log('ls выбрал:', path)
 
 		const resolvedPath = path ? this.resolvePath(path) : this.currentPath
@@ -138,7 +84,7 @@ export class VFS {
 		)
 	}
 
-	public changeDirectory(path: string): void {
+	public cd(path: string): void {
 		const resolvedPath = this.resolvePath(path)
 		const node = this.getNodeByPath(resolvedPath)
 
@@ -147,62 +93,60 @@ export class VFS {
 		this.currentPath = resolvedPath
 	}
 
-	public createFile(filePath: string): void {
-		const resolvedPath = this.resolvePath(filePath)
-		const fileName = this.getFileNameByPath(resolvedPath)
-
-		const newNode: VFSFileNode = {
-			name: fileName,
-			type: 'file',
-			content: '',
-		}
-
-		this.createNode(resolvedPath, newNode, { recursive: false })
-	}
-
-	public catFile(path: string): string {
+	public read(path: string): string {
 		const resolvedPath = this.resolvePath(path)
 		const file = this.getNodeByPath(resolvedPath)
 		if (!file || file.type !== 'file') throw new VFSFileNotFound(resolvedPath)
 		return file.content
 	}
 
-	public createDirectory(directoryPath: string, options: IMkdirCommandOptions): void {
-		const resolvedPath = this.resolvePath(directoryPath)
-		const directoryName = this.getFileNameByPath(resolvedPath)
-
-		const newNode: VFSDirectoryNode = {
-			name: directoryName,
-			type: 'directory',
-			children: [],
-		}
-
-		this.createNode(resolvedPath, newNode, { recursive: options.parents })
-	}
-
-	public deleteDirectory(directoryPath: string): void {
-		const resolvedPath = this.resolvePath(directoryPath)
-
-		this.deleteNode(resolvedPath)
-	}
-
-	public deleteFileOrDirectory(path: string, options: IRmCommandOptions): void {
+	public create(
+		path: string,
+		type: 'file' | 'directory',
+		options?: VFSCreateOptions,
+	): void {
 		const resolvedPath = this.resolvePath(path)
+		const nodeName = this.getFileNameByPath(resolvedPath)
 
-		this.deleteNode(resolvedPath, { recursive: options.recursive })
+		const newNode: VFSNode =
+			type === 'file'
+				? { name: nodeName, type: 'file', content: '' }
+				: { name: nodeName, type: 'directory', children: [] }
+
+		this.createNode(resolvedPath, newNode, { recursive: options?.recursive ?? false })
 	}
 
-	public moveFileOrDirectory(pathFrom: string, pathTo: string, rename: boolean) {
-		const resolvedPathFrom = this.resolvePath(pathFrom)
-		const resolvedPathTo = this.resolvePath(pathTo)
-		this.moveNode(resolvedPathFrom, resolvedPathTo, rename)
+	public move(from: string, to: string, options?: VFSMoveOptions) {
+		const resolvedPathFrom = this.resolvePath(from)
+		const resolvedPathTo = this.resolvePath(to)
+		this.moveNode(resolvedPathFrom, resolvedPathTo, options?.rename ?? false)
 	}
 
-	public getCurrentDirectory(): string {
+	public delete(path: string, options?: VFSDeleteOptions): void {
+		const resolvedPath = this.resolvePath(path)
+		this.deleteNode(resolvedPath, {
+			recursive: options?.recursive ?? false,
+			force: options?.force ?? false,
+		})
+	}
+
+	public write(path: string, content: string): void {
+		const resolvedPath = this.resolvePath(path)
+		const file = this.getNodeByPath(resolvedPath)
+
+		if (!file) {
+			this.create(path, 'file')
+			const newFile = this.getNodeByPath(resolvedPath)
+			if (newFile && newFile.type === 'file') newFile.content = content
+		} else if (file.type === 'file') file.content = content
+		else throw new VFSNotAFile(path)
+	}
+
+	public getCurrentPath(): string {
 		return this.currentPath
 	}
 
-	private resolvePath(path: string): string {
+	public resolvePath(path: string): string {
 		console.log('до:', path)
 
 		if (path[0] === '/') return path
@@ -223,15 +167,7 @@ export class VFS {
 		return '/' + currentPathSegments.join('/')
 	}
 
-	private resolvePathSegments(resolvedPath: string): string[] {
-		return resolvedPath.split('/').slice(1)
-	}
-
-	private getRootNode(): VFSDirectoryNode {
-		return this.root
-	}
-
-	private getNodeByPath(resolvedPath: string): VFSNode | undefined {
+	public getNodeByPath(resolvedPath: string): VFSNode | undefined {
 		let currentNode: VFSNode = this.getRootNode()
 
 		if (resolvedPath === '/') return currentNode
@@ -249,12 +185,20 @@ export class VFS {
 		return currentNode
 	}
 
+	private resolvePathSegments(resolvedPath: string): string[] {
+		return resolvedPath.split('/').slice(1)
+	}
+
+	private getRootNode(): VFSDirectoryNode {
+		return this.root
+	}
+
 	private createNode(
-		targetPath: string,
+		resolvedPath: string,
 		node: VFSNode,
 		options?: { recursive?: boolean },
 	): void {
-		const pathSegments = this.resolvePathSegments(targetPath)
+		const pathSegments = this.resolvePathSegments(resolvedPath)
 
 		let currentNode = this.getRootNode()
 		let currentPath = ''
@@ -283,7 +227,7 @@ export class VFS {
 		}
 
 		if (currentNode.children.findIndex(child => child.name === node.name) !== -1)
-			throw new VFSDirectoryAlreadyExists(targetPath)
+			throw new VFSDirectoryAlreadyExists(resolvedPath)
 
 		currentNode.children.push(node)
 	}
@@ -340,7 +284,7 @@ export class VFS {
 		}
 	}
 
-	private deleteNode(targetPath: string, options?: { recursive?: boolean }): void {
+	private deleteNode(targetPath: string, options?: VFSDeleteOptions): void {
 		const node = this.getNodeByPath(targetPath)
 
 		if (!node) throw new VFSFileOrDirectoryNotFound(targetPath)

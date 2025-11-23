@@ -11,7 +11,7 @@ export class RmdirCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Remove an empty directory'
+		return 'Delete an empty directory'
 	}
 
 	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
@@ -34,9 +34,11 @@ export class RmdirCommand extends BaseCommand {
 			const output: string[] = []
 			for (const filePath of filePaths) {
 				try {
-					shell.getVFS().deleteDirectory(filePath)
+					shell
+						.getFileSystem()
+						.deleteFileOrDirectory(filePath, { recursive: options.parents })
 				} catch (error) {
-					output.push(`failed to remove directory: ${(error as Error).message}`)
+					output.push(`failed to delete directory: ${(error as Error).message}`)
 				}
 			}
 

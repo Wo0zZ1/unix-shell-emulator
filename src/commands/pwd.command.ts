@@ -13,8 +13,8 @@ export class PwdCommand extends BaseCommand {
 	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 0, 0)
-			const output = shell.getVFS().getCurrentDirectory()
-			return { output }
+			const currentPath = shell.getFileSystem().getCurrentPath()
+			return { output: currentPath }
 		} catch (error) {
 			return { output: `pwd: ${(error as Error).message}`, error: true }
 		}

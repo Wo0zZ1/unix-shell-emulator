@@ -32,7 +32,7 @@ export class TouchCommand extends BaseCommand {
 			const output: string[] = []
 			for (const filePath of filePaths) {
 				try {
-					shell.getVFS().createFile(filePath)
+					shell.getFileSystem().createFile(filePath)
 				} catch (error) {
 					output.push(`failed to create file: ${(error as Error).message}`)
 				}

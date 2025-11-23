@@ -19,11 +19,12 @@ export class TerminalRenderer {
 		this.prompt = document.getElementById('prompt') as HTMLElement
 		this.input = document.getElementById('command-input') as HTMLInputElement
 
-		this.initializeEventListeners()
 		this.init()
 	}
 
 	private async init() {
+		this.initializeEventListeners()
+
 		const config = await window.electronAPI.getAppConfig()
 		await this.applyConfig(config)
 		this.printWelcomeMessage()

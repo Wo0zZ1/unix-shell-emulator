@@ -27,7 +27,7 @@ export class CatCommand extends BaseCommand {
 
 			if (options.help) return { output: this.getDescription() }
 
-			const content = shell.getVFS().catFile(path)
+			const content = shell.getFileSystem().readFile(path)
 			return { output: content }
 		} catch (error) {
 			return { output: `cat: ${(error as Error).message}`, error: true }

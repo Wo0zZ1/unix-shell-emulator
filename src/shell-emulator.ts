@@ -1,6 +1,8 @@
 import { CommandFactory } from './commands/command-factory'
 import { CommandParser } from './command-parser'
 import { VFS } from './vfs'
+import { IFileSystemService } from './services/filesystem.interface'
+import { FileSystemService } from './services/filesystem.service'
 
 export interface IExecuteResponse {
 	output: string
@@ -9,19 +11,22 @@ export interface IExecuteResponse {
 }
 
 export class ShellEmulator {
+	private commandFactory = new CommandFactory()
+	private fileSystem: IFileSystemService
+
 	private vfs: VFS
 	private currentDirectory: string = '/'
 	private isRunning: boolean = true
-	private commandFactory = new CommandFactory()
 
 	constructor(vfs: VFS) {
 		this.vfs = vfs
+		this.fileSystem = new FileSystemService(vfs)
 	}
 
 	public static async create(vfsPath?: string): Promise<ShellEmulator> {
-		const vfs = new VFS()
-		if (vfsPath) await vfs.loadFromXML(vfsPath)
-		else vfs.loadDefault()
+		let vfs: VFS
+		if (vfsPath) vfs = await VFS.loadFromXML(vfsPath)
+		else vfs = VFS.loadDefault()
 		return new ShellEmulator(vfs)
 	}
 
@@ -53,6 +58,10 @@ export class ShellEmulator {
 
 	public getCurrentDirectory(): string {
 		return this.currentDirectory
+	}
+
+	public getFileSystem(): IFileSystemService {
+		return this.fileSystem
 	}
 
 	public getVFS(): VFS {

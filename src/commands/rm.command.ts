@@ -12,7 +12,7 @@ export class RmCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Remove files or directories (use -r for directories)'
+		return 'Delete files or directories (use -r for directories)'
 	}
 
 	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
@@ -33,10 +33,12 @@ export class RmCommand extends BaseCommand {
 			const output: string[] = []
 			for (const filePath of filePaths) {
 				try {
-					shell.getVFS().deleteFileOrDirectory(filePath, options)
+					shell
+						.getFileSystem()
+						.deleteFileOrDirectory(filePath, { recursive: options.recursive })
 				} catch (error) {
 					output.push(
-						`failed to remove directory ${filePath}: ${(error as Error).message}`,
+						`failed to delete directory ${filePath}: ${(error as Error).message}`,
 					)
 				}
 			}

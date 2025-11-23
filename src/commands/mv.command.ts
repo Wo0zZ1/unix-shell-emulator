@@ -37,8 +37,10 @@ export class MvCommand extends BaseCommand {
 			for (const sourcePath of sourcePaths) {
 				try {
 					shell
-						.getVFS()
-						.moveFileOrDirectory(sourcePath, destPath, sourcePaths.length === 1)
+						.getFileSystem()
+						.moveFileOrDirectory(sourcePath, destPath, {
+							rename: sourcePaths.length === 1,
+						})
 				} catch (error) {
 					output.push(`failed to move: ${(error as Error).message}`)
 				}

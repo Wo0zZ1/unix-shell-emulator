@@ -13,7 +13,7 @@ export class CdCommand extends BaseCommand {
 	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
 		try {
 			this.validateArgs(args, 1, 1)
-			shell.getVFS().changeDirectory(args[0])
+			shell.getFileSystem().changeDirectory(args[0])
 			return { output: '' }
 		} catch (error) {
 			return { output: `cd: ${(error as Error).message}`, error: true }

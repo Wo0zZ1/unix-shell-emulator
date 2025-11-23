@@ -27,7 +27,7 @@ export class LsCommand extends BaseCommand {
 
 			if (options.help) return { output: this.getDescription() }
 
-			const output = shell.getVFS().listDirectory(path)
+			const output = shell.getFileSystem().listDirectory(path)
 			return { output }
 		} catch (error) {
 			return { output: `ls ${(error as Error).message}`, error: true }
