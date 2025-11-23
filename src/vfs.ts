@@ -8,7 +8,6 @@ import {
 	VFSFileOrDirectoryAlreadyExists,
 	VFSFileOrDirectoryNotFound,
 	VFSFormatError,
-	VFSLoadingError,
 	VFSInvalidPath,
 	VFSPathEscapesRoot,
 	VFSNotAFile,
