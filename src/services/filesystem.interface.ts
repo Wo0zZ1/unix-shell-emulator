@@ -2,7 +2,11 @@ export interface ICreateDirectoryOptions {
 	parents?: boolean
 }
 
-export interface IDeleteOptions {
+export interface IDeleteDirectoryOptions {
+	parents?: boolean
+}
+
+export interface IDeleteFileOptions {
 	recursive?: boolean
 	force?: boolean
 }
@@ -16,13 +20,13 @@ export interface IFileSystemService {
 	listDirectory(path?: string): string
 	changeDirectory(path: string): void
 	createDirectory(path: string, options?: ICreateDirectoryOptions): void
-	deleteDirectory(path: string): void
+	deleteDirectory(path: string, options?: IDeleteDirectoryOptions): void
 
 	// Операции с файлами
 	readFile(path: string): string
 	writeFile(path: string, content: string): void
 	createFile(path: string): void
-	deleteFileOrDirectory(path: string, options?: IDeleteOptions): void
+	deleteFile(path: string, options?: IDeleteFileOptions): void
 	moveFileOrDirectory(from: string, to: string, options?: IMoveOptions): void
 
 	// Утилиты

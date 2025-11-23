@@ -12,6 +12,7 @@ import {
 	VFSInvalidPath,
 	VFSPathEscapesRoot,
 	VFSNotAFile,
+	VFSNotADirectory,
 } from './errors/vfs-error'
 import { DEFAULT_VFS_STRUCTURE } from './vfs-default'
 import VFSParser from './vfs-praser'
@@ -39,6 +40,7 @@ export interface VFSCreateOptions {
 export interface VFSDeleteOptions {
 	recursive?: boolean
 	force?: boolean
+	fileType?: 'file' | 'directory'
 }
 
 export interface VFSMoveOptions {
@@ -71,12 +73,11 @@ export class VFS {
 	}
 
 	public list(path?: string): string {
-		console.log('ls выбрал:', path)
-
 		const resolvedPath = path ? this.resolvePath(path) : this.currentPath
 		const node = this.getNodeByPath(resolvedPath)
 
-		if (!node || node.type !== 'directory') throw new VFSDirectoryNotFound(resolvedPath)
+		if (!node) throw new VFSDirectoryNotFound(resolvedPath)
+		if (node.type !== 'directory') throw new VFSNotADirectory(resolvedPath)
 
 		return (
 			(resolvedPath == '/' ? '.\t' : '.\t..\t') +
@@ -88,7 +89,8 @@ export class VFS {
 		const resolvedPath = this.resolvePath(path)
 		const node = this.getNodeByPath(resolvedPath)
 
-		if (!node || node.type !== 'directory') throw new VFSDirectoryNotFound(resolvedPath)
+		if (!node) throw new VFSDirectoryNotFound(resolvedPath)
+		if (node.type !== 'directory') throw new VFSNotADirectory(resolvedPath)
 
 		this.currentPath = resolvedPath
 	}
@@ -96,7 +98,8 @@ export class VFS {
 	public read(path: string): string {
 		const resolvedPath = this.resolvePath(path)
 		const file = this.getNodeByPath(resolvedPath)
-		if (!file || file.type !== 'file') throw new VFSFileNotFound(resolvedPath)
+		if (!file) throw new VFSFileNotFound(resolvedPath)
+		if (file.type !== 'file') throw new VFSNotAFile(resolvedPath)
 		return file.content
 	}
 
@@ -127,6 +130,7 @@ export class VFS {
 		this.deleteNode(resolvedPath, {
 			recursive: options?.recursive ?? false,
 			force: options?.force ?? false,
+			fileType: options?.fileType,
 		})
 	}
 
@@ -136,10 +140,11 @@ export class VFS {
 
 		if (!file) {
 			this.create(path, 'file')
-			const newFile = this.getNodeByPath(resolvedPath)
-			if (newFile && newFile.type === 'file') newFile.content = content
-		} else if (file.type === 'file') file.content = content
-		else throw new VFSNotAFile(path)
+			const newFile = this.getNodeByPath(resolvedPath) as VFSFileNode
+			newFile.content = content
+		} else if (file.type === 'file') {
+			file.content = content
+		} else throw new VFSNotAFile(path)
 	}
 
 	public getCurrentPath(): string {
@@ -147,8 +152,6 @@ export class VFS {
 	}
 
 	public resolvePath(path: string): string {
-		console.log('до:', path)
-
 		if (path[0] === '/') return path
 
 		const pathSegments = path.replace(/\/$/, '').split('/')
@@ -161,8 +164,6 @@ export class VFS {
 				if (!segment) throw new VFSInvalidPath(path)
 				currentPathSegments.push(segment)
 			}
-
-		console.log('после:', '/' + currentPathSegments.join('/'))
 
 		return '/' + currentPathSegments.join('/')
 	}
@@ -288,6 +289,10 @@ export class VFS {
 		const node = this.getNodeByPath(targetPath)
 
 		if (!node) throw new VFSFileOrDirectoryNotFound(targetPath)
+		if (node.type === 'directory' && options?.fileType === 'file')
+			throw new VFSNotAFile(targetPath)
+		else if (node.type === 'file' && options?.fileType === 'directory')
+			throw new VFSNotADirectory(targetPath)
 
 		if (this.currentPath.startsWith(targetPath)) throw new VFSDirectoryIsBusy(targetPath)
 

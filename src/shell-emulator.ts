@@ -4,18 +4,21 @@ import { VFS } from './vfs'
 import { IFileSystemService } from './services/filesystem.interface'
 import { FileSystemService } from './services/filesystem.service'
 
+export interface IExtraCommandResponse {
+	clearTerminal?: boolean
+}
+
 export interface IExecuteResponse {
 	output: string
 	error?: boolean
-	extra?: { clearTerminal?: boolean }
+	extra?: IExtraCommandResponse
 }
 
 export class ShellEmulator {
 	private commandFactory = new CommandFactory()
 	private fileSystem: IFileSystemService
-
 	private vfs: VFS
-	private currentDirectory: string = '/'
+
 	private isRunning: boolean = true
 
 	constructor(vfs: VFS) {
@@ -35,14 +38,30 @@ export class ShellEmulator {
 		if (!input) return { output: '' }
 
 		try {
-			const { command, args } = CommandParser.parse(input)
+			const parsedCommands = CommandParser.parse(input)
 
-			const commandExecutor = this.commandFactory.getCommand(command)
+			let stdout = ''
+			let extraCommandResponse: IExtraCommandResponse | undefined
 
-			if (!commandExecutor)
-				return { output: `Error: command not found: ${command}`, error: true }
+			for (const parsedCommand of parsedCommands) {
+				if (!parsedCommand.command) continue
 
-			return commandExecutor.execute(args, this)
+				const commandExecutor = this.commandFactory.getCommand(parsedCommand.command)
+				if (!commandExecutor)
+					return {
+						output: `Error: command not found: ${parsedCommand.command}`,
+						error: true,
+					}
+
+				const result = commandExecutor.execute(parsedCommand.args, this)
+
+				stdout = result.output
+				extraCommandResponse = result.extra
+
+				if (result.error) continue
+			}
+
+			return { output: stdout, extra: extraCommandResponse }
 		} catch (error) {
 			return { output: `Error: ${(error as Error).message}`, error: true }
 		}
@@ -56,15 +75,11 @@ export class ShellEmulator {
 		return this.isRunning
 	}
 
-	public getCurrentDirectory(): string {
-		return this.currentDirectory
+	public getCurrentPath(): string {
+		return this.vfs.getCurrentPath()
 	}
 
 	public getFileSystem(): IFileSystemService {
 		return this.fileSystem
-	}
-
-	public getVFS(): VFS {
-		return this.vfs
 	}
 }

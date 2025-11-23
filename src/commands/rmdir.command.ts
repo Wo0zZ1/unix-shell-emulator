@@ -36,7 +36,7 @@ export class RmdirCommand extends BaseCommand {
 				try {
 					shell
 						.getFileSystem()
-						.deleteFileOrDirectory(filePath, { recursive: options.parents })
+						.deleteDirectory(filePath, { parents: options.parents })
 				} catch (error) {
 					output.push(`failed to delete directory: ${(error as Error).message}`)
 				}

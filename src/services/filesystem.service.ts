@@ -1,7 +1,8 @@
 import { VFS } from '../vfs'
 import {
 	ICreateDirectoryOptions,
-	IDeleteOptions,
+	IDeleteDirectoryOptions,
+	IDeleteFileOptions,
 	IFileSystemService,
 	IMoveOptions,
 } from './filesystem.interface'
@@ -21,8 +22,8 @@ export class FileSystemService implements IFileSystemService {
 		this.vfs.create(path, 'directory', { recursive: options?.parents })
 	}
 
-	deleteDirectory(path: string): void {
-		this.vfs.delete(path, { recursive: false })
+	deleteDirectory(path: string, options?: IDeleteDirectoryOptions): void {
+		this.vfs.delete(path, { recursive: options?.parents, fileType: 'directory' })
 	}
 
 	readFile(path: string): string {
@@ -37,8 +38,11 @@ export class FileSystemService implements IFileSystemService {
 		this.vfs.create(path, 'file')
 	}
 
-	deleteFileOrDirectory(path: string, options?: IDeleteOptions): void {
-		this.vfs.delete(path, { recursive: options?.recursive })
+	deleteFile(path: string, options?: IDeleteFileOptions): void {
+		this.vfs.delete(path, {
+			recursive: options?.recursive,
+			fileType: options?.recursive ? undefined : 'file',
+		})
 	}
 
 	moveFileOrDirectory(from: string, to: string, options?: IMoveOptions): void {

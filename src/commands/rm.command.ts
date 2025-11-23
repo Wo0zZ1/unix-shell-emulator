@@ -33,13 +33,9 @@ export class RmCommand extends BaseCommand {
 			const output: string[] = []
 			for (const filePath of filePaths) {
 				try {
-					shell
-						.getFileSystem()
-						.deleteFileOrDirectory(filePath, { recursive: options.recursive })
+					shell.getFileSystem().deleteFile(filePath, { recursive: options.recursive })
 				} catch (error) {
-					output.push(
-						`failed to delete directory ${filePath}: ${(error as Error).message}`,
-					)
+					output.push(`failed to delete directory: ${(error as Error).message}`)
 				}
 			}
 
