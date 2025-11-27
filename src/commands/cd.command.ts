@@ -10,7 +10,7 @@ export class CdCommand extends BaseCommand {
 		return 'Change the current working directory'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1, 1)
 			shell.getFileSystem().changeDirectory(args[0])

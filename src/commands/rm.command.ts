@@ -15,7 +15,7 @@ export class RmCommand extends BaseCommand {
 		return 'Delete files or directories (use -r for directories)'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1)
 

@@ -74,9 +74,9 @@ export class TerminalRenderer {
 			this.printLine(`Executing startup script: ${scriptPath}`)
 			this.printLine('---------------------------------------------')
 
-			let someError: boolean = false
-			for (const command of commands)
-				someError = this.executeCommand(command, true) || someError
+		let someError: boolean = false
+		for (const command of commands)
+			someError = (await this.executeCommand(command, true)) || someError
 
 			this.printLine('---------------------------------------------')
 			let finishMessage = 'Startup script execution completed'
@@ -98,7 +98,7 @@ export class TerminalRenderer {
 		switch (e.key) {
 			case 'Enter':
 				e.preventDefault()
-				this.executeCommand(this.getInputValue())
+				void this.executeCommand(this.getInputValue())
 				this.setInputValue('')
 				break
 			case 'ArrowUp':
@@ -116,12 +116,12 @@ export class TerminalRenderer {
 		}
 	}
 
-	private executeCommand(command: string, safeMode: boolean = false): boolean {
+	private async executeCommand(command: string, safeMode: boolean = false): Promise<boolean> {
 		let withError: boolean = false
 		command = command.trim()
 
 		if (command) {
-			const result = this.shell.execute(command)
+			const result = await this.shell.execute(command)
 			if (result.error) withError = true
 			if (!safeMode || !result.error) {
 				this.historyManager.add(command)

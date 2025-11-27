@@ -1,23 +1,23 @@
 import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
-export interface ILsCommandOptions extends IBaseCommandOptions {}
+export interface ISavefsCommandOptions extends IBaseCommandOptions {}
 
-export class LsCommand extends BaseCommand {
+export class SavefsCommand extends BaseCommand {
 	getName(): string {
-		return 'ls'
+		return 'savefs'
 	}
 
 	getDescription(): string {
-		return 'List directory contents'
+		return 'Save the virtual file system to an XML file'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 0, 1)
-			const path = args[0] as string | undefined
+			const fileName = args[0] || 'vfs-snapshot.xml'
 
-			const options: ILsCommandOptions = {
+			const options: ISavefsCommandOptions = {
 				help: false,
 			}
 
@@ -27,10 +27,11 @@ export class LsCommand extends BaseCommand {
 
 			if (options.help) return { output: this.getDescription() }
 
-			const output = shell.getFileSystem().listDirectory(path)
-			return { output }
+			const content = shell.getFileSystem().toXML()
+			await shell.saveToFile(fileName, content)
+			return { output: `Successfully saved to ${fileName}` }
 		} catch (error) {
-			return { output: `ls ${(error as Error).message}`, error: true }
+			return { output: `savefs: ${(error as Error).message}`, error: true }
 		}
 	}
 }

@@ -88,6 +88,20 @@ ipcMain.handle('read-file', async (event, filePath: string) => {
 	}
 })
 
+ipcMain.handle('save-file', async (event, filePath: string, content: string) => {
+	try {
+		await fs.promises.writeFile(
+			path.join(__dirname, 'public', filePath),
+			content,
+			'utf-8',
+		)
+	} catch (e) {
+		const error = e as NodeJS.ErrnoException
+		if (error.code === 'EACCES') throw `File saving error: Permission denied`
+		throw 'File saving error: Unknown error'
+	}
+})
+
 ipcMain.handle('server-log', async (event, text: string) => {
 	console.log(text)
 })

@@ -16,6 +16,20 @@ import {
 import { DEFAULT_VFS_STRUCTURE } from './vfs-default'
 import VFSParser from './vfs-praser'
 
+export type VFSContentEncoding = 'base64' | 'utf-8'
+
+export interface VFSMetadata {
+	owner: string
+	permissions: string
+	createdAt: Date
+	updatedAt: Date
+}
+
+export interface VFSBaseNode {
+	name: string
+	metadata: VFSMetadata
+}
+
 export interface VFSDirectoryNode extends VFSBaseNode {
 	type: 'directory'
 	children: VFSNode[]
@@ -24,10 +38,6 @@ export interface VFSDirectoryNode extends VFSBaseNode {
 export interface VFSFileNode extends VFSBaseNode {
 	type: 'file'
 	content: string
-}
-
-export interface VFSBaseNode {
-	name: string
 }
 
 export type VFSNode = VFSDirectoryNode | VFSFileNode
@@ -55,11 +65,7 @@ export class VFS {
 	}
 
 	public static loadDefault(): VFS {
-		const root: VFSDirectoryNode = {
-			name: 'root',
-			type: 'directory',
-			children: DEFAULT_VFS_STRUCTURE,
-		} as VFSDirectoryNode
+		const root = VFSParser.createRootNode(DEFAULT_VFS_STRUCTURE)
 		return new VFS(root)
 	}
 
@@ -69,6 +75,12 @@ export class VFS {
 		const fileContent = file.toString()
 		const root = VFSParser.parseXML(fileContent)
 		return new VFS(root)
+	}
+
+	public toXML(): string {
+		const XMLDocument = VFSParser.serializeToXML(this.root)
+		const serializer = new XMLSerializer()
+		return serializer.serializeToString(XMLDocument)
 	}
 
 	public list(path?: string): string {
@@ -110,10 +122,17 @@ export class VFS {
 		const resolvedPath = this.resolvePath(path)
 		const nodeName = this.getFileNameByPath(resolvedPath)
 
-		const newNode: VFSNode =
-			type === 'file'
-				? { name: nodeName, type: 'file', content: '' }
-				: { name: nodeName, type: 'directory', children: [] }
+		const newNode = {
+			name: nodeName,
+			type: type,
+			metadata: {
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				owner: 'root',
+				permissions: type === 'file' ? 'rw-r--r--' : 'rwxr-xr-x',
+			},
+			...(type === 'file' ? { content: '' } : { children: [] }),
+		} as VFSNode
 
 		this.createNode(resolvedPath, newNode, { recursive: options?.recursive ?? false })
 	}
@@ -213,11 +232,17 @@ export class VFS {
 			if (!childrenNode) {
 				if (!options?.recursive) throw new VFSDirectoryNotFound(currentPath)
 
-				const newNode = {
+				const newNode: VFSDirectoryNode = {
 					name: segment,
 					type: 'directory',
 					children: [],
-				} as VFSDirectoryNode
+					metadata: {
+						createdAt: new Date(),
+						updatedAt: new Date(),
+						owner: 'root',
+						permissions: 'rwxr-xr-x',
+					},
+				}
 				currentNode.children.push(newNode)
 
 				childrenNode = newNode
@@ -240,47 +265,59 @@ export class VFS {
 		const movingNode = this.getNodeByPath(resolvedPathFrom)
 		if (!movingNode) throw new VFSFileOrDirectoryNotFound(resolvedPathFrom)
 
+		const fromDirectory = this.getNodeByPath(this.getParentPath(resolvedPathFrom))
+
+		if (!fromDirectory) throw new VFSDirectoryNotFound(resolvedPathTo)
+		if (fromDirectory.type !== 'directory') throw new VFSNotADirectory(resolvedPathTo)
+
 		if (rename) {
 			const targetNode = this.getNodeByPath(resolvedPathTo)
 
 			if (!targetNode) {
-				const destDirPath = this.getParentPath(resolvedPathTo)
-				const destDir = this.getNodeByPath(destDirPath)
+				const targetDirectoryPath = this.getParentPath(resolvedPathTo)
+				const targetDirectory = this.getNodeByPath(targetDirectoryPath)
 
-				if (!destDir || destDir.type !== 'directory')
-					throw new VFSDirectoryNotFound(destDirPath)
+				if (!targetDirectory) throw new VFSDirectoryNotFound(targetDirectoryPath)
+				if (targetDirectory.type !== 'directory')
+					throw new VFSNotADirectory(targetDirectoryPath)
 
 				const targetFileName = this.getFileNameByPath(resolvedPathTo)
 
 				this.deleteNode(resolvedPathFrom, { recursive: true })
+
 				movingNode.name = targetFileName
-				destDir.children.push(movingNode)
+				targetDirectory.children.push(movingNode)
+				targetDirectory.metadata.updatedAt = new Date()
 			} else if (targetNode.type === 'file') {
 				throw new VFSFileAlreadyExists(resolvedPathTo)
 			} else {
 				const existingNode = targetNode.children.find(
 					child => child.name === movingNode.name,
 				)
-				if (existingNode) throw new VFSFileAlreadyExists(resolvedPathTo)
+				if (existingNode) throw new VFSFileOrDirectoryAlreadyExists(resolvedPathTo)
 
 				this.deleteNode(resolvedPathFrom, { recursive: true })
+
 				movingNode.name = movingNode.name
 				targetNode.children.push(movingNode)
+				targetNode.metadata.updatedAt = new Date()
 			}
 		} else {
-			const targetNode = this.getNodeByPath(resolvedPathTo)
+			const targetDirectory = this.getNodeByPath(resolvedPathTo)
 
-			if (!targetNode || targetNode.type !== 'directory')
-				throw new VFSDirectoryNotFound(resolvedPathTo)
+			if (!targetDirectory) throw new VFSDirectoryNotFound(resolvedPathTo)
+			if (targetDirectory.type !== 'directory') throw new VFSNotADirectory(resolvedPathTo)
 
-			const existingNode = targetNode.children.find(
+			const existingNode = targetDirectory.children.find(
 				child => child.name === movingNode.name,
 			)
 
 			if (existingNode) throw new VFSFileOrDirectoryAlreadyExists(resolvedPathTo)
 
 			this.deleteNode(resolvedPathFrom, { recursive: true })
-			targetNode.children.push(movingNode)
+
+			targetDirectory.children.push(movingNode)
+			targetDirectory.metadata.updatedAt = new Date()
 		}
 	}
 
@@ -296,19 +333,19 @@ export class VFS {
 		if (this.currentPath.startsWith(targetPath)) throw new VFSDirectoryIsBusy(targetPath)
 
 		const parentPath = this.getParentPath(targetPath)
-		const parentNode = this.getNodeByPath(parentPath)
+		const parentDirectory = this.getNodeByPath(parentPath)
 
-		if (!parentNode || parentNode.type !== 'directory')
-			throw new VFSDirectoryNotFound(targetPath)
+		if (!parentDirectory) throw new VFSDirectoryNotFound(targetPath)
+		if (parentDirectory.type !== 'directory') throw new VFSNotADirectory(parentPath)
 
 		if (node.type === 'directory' && node.children.length > 0 && !options?.recursive)
 			throw new VFSError(`directory not empty: ${targetPath}`)
 
-		const index = parentNode.children.findIndex(child => child.name === node.name)
-
+		const index = parentDirectory.children.findIndex(child => child.name === node.name)
 		if (index === -1) throw new VFSFileOrDirectoryNotFound(targetPath)
 
-		parentNode.children.splice(index, 1)
+		parentDirectory.children.splice(index, 1)
+		parentDirectory.metadata.updatedAt = new Date()
 	}
 
 	/**

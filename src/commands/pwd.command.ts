@@ -10,7 +10,7 @@ export class PwdCommand extends BaseCommand {
 		return 'Print working directory'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 0, 0)
 			const currentPath = shell.getFileSystem().getCurrentPath()

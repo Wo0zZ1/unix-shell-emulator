@@ -14,7 +14,7 @@ export class MkdirCommand extends BaseCommand {
 		return 'Create an empty directory(s)'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1)
 

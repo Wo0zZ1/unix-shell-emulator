@@ -6,7 +6,7 @@ export interface IBaseCommandOptions {
 }
 
 export abstract class BaseCommand implements Command {
-	abstract execute(args: string[], shell: ShellEmulator): IExecuteResponse
+	abstract execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse>
 
 	abstract getName(): string
 

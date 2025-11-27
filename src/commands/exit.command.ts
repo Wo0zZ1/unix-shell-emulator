@@ -10,7 +10,7 @@ export class ExitCommand extends BaseCommand {
 		return 'Terminate the terminal emulator session'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 0, 0)
 			shell.terminate()

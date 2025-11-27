@@ -10,7 +10,7 @@ export class ClearCommand extends BaseCommand {
 		return 'Clear screen'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 0, 0)
 			return { output: '', extra: { clearTerminal: true } }

@@ -13,7 +13,7 @@ export class MvCommand extends BaseCommand {
 		return 'Move files and directories'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 2)
 

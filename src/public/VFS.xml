@@ -1,25 +1,25 @@
-<vfs name="root">
-    <node name="home" type="directory">
-        <node name="user" type="directory">
-            <node name="documents" type="directory">
-                <node name="temp" type="directory">
-                
-                </node>
-                <node name="readme.txt" type="file">
-                    <content encoding="text">Welcome to VFS!</content>
-                </node>
-                <node name="config.json" type="file">
-                    <content encoding="text">{"version": "1.0"}</content>
-                </node>
-            </node>
-            <node name="image.png" type="file">
-                <content encoding="base64">0K8g0LfQsNC60L7QtNC40YDQvtCy0LDQvdC90YvQuSDRgtC10LrRgdGCINCyIEJhc2U2NA==</content>
-            </node>
+<vfs>
+  <node owner="root" permissions="rwxr-xr-x" createdAt="2024-01-01T00:00:00Z" updatedAt="2024-01-01T00:00:00Z" name="home" type="directory">
+    <node owner="user" permissions="rwxr-xr-x" createdAt="2024-01-15T10:30:00Z" updatedAt="2024-01-15T10:30:00Z" name="user" type="directory">
+      <node owner="user" permissions="rwxr-xr-x" createdAt="2024-02-01T14:20:00Z" updatedAt="2024-11-20T09:15:00Z" name="documents" type="directory">
+        <node owner="user" permissions="rwxr-xr-x" createdAt="2024-11-15T16:45:00Z" updatedAt="2024-11-15T16:45:00Z" name="temp" type="directory">
+          
         </node>
-    </node>
-    <node name="bin" type="directory">
-        <node name="script.sh" type="file">
-            <content encoding="text">#!/bin/bash\necho "Hello"</content>
+        <node owner="user" permissions="rw-r--r--" createdAt="2024-03-10T08:00:00Z" updatedAt="2024-03-10T08:00:00Z" name="readme.txt" type="file">
+          <content encoding="utf-8">Welcome to VFS!</content>
         </node>
+        <node owner="user" permissions="rw-r--r--" createdAt="2024-05-22T11:30:00Z" updatedAt="2024-11-20T09:15:00Z" name="config.json" type="file">
+          <content encoding="utf-8">{"version": "1.0"}</content>
+        </node>
+      </node>
+      <node owner="user" permissions="rw-r--r--" createdAt="2024-06-18T13:45:00Z" updatedAt="2024-06-18T13:45:00Z" name="image.png" type="file">
+        <content encoding="base64">SSBhbSBhIGJhc2U2NC1lbmNvZGVkIHBpY3R1cmUu</content>
+      </node>
     </node>
+  </node>
+  <node owner="root" permissions="rwxr-xr-x" createdAt="2024-01-01T00:00:00Z" updatedAt="2024-01-01T00:00:00Z" name="bin" type="directory">
+    <node owner="root" permissions="rwxr-xr-x" createdAt="2024-01-05T12:00:00Z" updatedAt="2024-01-05T12:00:00Z" name="script.sh" type="file">
+      <content encoding="utf-8">#!/bin/bash\necho "Hello"</content>
+    </node>
+  </node>
 </vfs>

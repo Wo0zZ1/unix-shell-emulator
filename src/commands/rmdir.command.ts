@@ -14,7 +14,7 @@ export class RmdirCommand extends BaseCommand {
 		return 'Delete an empty directory'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1)
 			const filePaths = args

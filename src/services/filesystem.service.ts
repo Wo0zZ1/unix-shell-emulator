@@ -82,4 +82,8 @@ export class FileSystemService implements IFileSystemService {
 			return false
 		}
 	}
+
+	toXML(): string {
+		return this.vfs.toXML()
+	}
 }

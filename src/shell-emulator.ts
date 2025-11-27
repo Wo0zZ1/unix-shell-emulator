@@ -33,7 +33,7 @@ export class ShellEmulator {
 		return new ShellEmulator(vfs)
 	}
 
-	public execute(input: string): IExecuteResponse {
+	public async execute(input: string): Promise<IExecuteResponse> {
 		input = input.trim()
 		if (!input) return { output: '' }
 
@@ -53,7 +53,7 @@ export class ShellEmulator {
 						error: true,
 					}
 
-				const result = commandExecutor.execute(parsedCommand.args, this)
+				const result = await commandExecutor.execute(parsedCommand.args, this)
 
 				stdout = result.output
 				extraCommandResponse = result.extra
@@ -81,5 +81,9 @@ export class ShellEmulator {
 
 	public getFileSystem(): IFileSystemService {
 		return this.fileSystem
+	}
+
+	public async saveToFile(fileName: string, content: string): Promise<void> {
+		await window.electronAPI.saveFile(fileName, content)
 	}
 }

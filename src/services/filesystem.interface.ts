@@ -34,4 +34,7 @@ export interface IFileSystemService {
 	exists(path: string): boolean
 	isFile(path: string): boolean
 	isDirectory(path: string): boolean
+
+	// Экспорт файловой системы
+	toXML(): string
 }

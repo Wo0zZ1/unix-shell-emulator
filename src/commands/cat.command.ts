@@ -12,7 +12,7 @@ export class CatCommand extends BaseCommand {
 		return "Print the file's content"
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1, 1)
 			const path = args[0]

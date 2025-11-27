@@ -1,18 +1,6 @@
 import { CommandRegistry } from './command-registry'
 import type { BaseCommand } from './base-command'
 
-import { LsCommand } from './ls.command'
-import { CdCommand } from './cd.command'
-import { ExitCommand } from './exit.command'
-import { PwdCommand } from './pwd.command'
-import { MkdirCommand } from './mkdir.command'
-import { RmdirCommand } from './rmdir.command'
-import { TouchCommand } from './touch.command'
-import { RmCommand } from './rm.command'
-import { MvCommand } from './mv.command'
-import { CatCommand } from './cat.command'
-import { ClearCommand } from './clear.command'
-
 export class CommandFactory {
 	private commandRegistry: CommandRegistry
 
@@ -22,17 +10,18 @@ export class CommandFactory {
 	}
 
 	private initializeCommands(): void {
-		this.commandRegistry.register('ls', LsCommand)
-		this.commandRegistry.register('cd', CdCommand)
-		this.commandRegistry.register('exit', ExitCommand)
-		this.commandRegistry.register('pwd', PwdCommand)
-		this.commandRegistry.register('mkdir', MkdirCommand)
-		this.commandRegistry.register('rmdir', RmdirCommand)
-		this.commandRegistry.register('touch', TouchCommand)
-		this.commandRegistry.register('rm', RmCommand)
-		this.commandRegistry.register('mv', MvCommand)
-		this.commandRegistry.register('cat', CatCommand)
-		this.commandRegistry.register('clear', ClearCommand)
+		this.commandRegistry.register('ls', require('./ls.command').LsCommand)
+		this.commandRegistry.register('cd', require('./cd.command').CdCommand)
+		this.commandRegistry.register('exit', require('./exit.command').ExitCommand)
+		this.commandRegistry.register('pwd', require('./pwd.command').PwdCommand)
+		this.commandRegistry.register('mkdir', require('./mkdir.command').MkdirCommand)
+		this.commandRegistry.register('rmdir', require('./rmdir.command').RmdirCommand)
+		this.commandRegistry.register('touch', require('./touch.command').TouchCommand)
+		this.commandRegistry.register('rm', require('./rm.command').RmCommand)
+		this.commandRegistry.register('mv', require('./mv.command').MvCommand)
+		this.commandRegistry.register('cat', require('./cat.command').CatCommand)
+		this.commandRegistry.register('clear', require('./clear.command').ClearCommand)
+		this.commandRegistry.register('savefs', require('./savefs.command').SavefsCommand)
 	}
 
 	public getCommand(name: string): BaseCommand | null {

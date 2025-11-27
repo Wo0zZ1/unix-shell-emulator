@@ -12,7 +12,7 @@ export class TouchCommand extends BaseCommand {
 		return 'Create an empty file(s)'
 	}
 
-	execute(args: string[], shell: ShellEmulator): IExecuteResponse {
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1)
 
