@@ -14,6 +14,7 @@ export class CdCommand extends BaseCommand {
 		try {
 			this.validateArgs(args, 1, 1)
 			shell.getFileSystem().changeDirectory(args[0])
+			shell.getEnvironmentManager().set('PWD', shell.getFileSystem().getCurrentPath())
 			return { output: '' }
 		} catch (error) {
 			return { output: `cd: ${(error as Error).message}`, error: true }

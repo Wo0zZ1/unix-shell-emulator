@@ -8,22 +8,39 @@ interface Redirects {
 	redirectInput?: string
 }
 
-export type ParsedCommand = Redirects &
-	(
-		| {
-				command?: undefined
-				args?: undefined
-		  }
-		| {
-				command: string
-				args: string[]
-		  }
-	)
+export interface Token {
+	value: string
+	quoted: false | 'single' | 'double'
+}
+
+export interface AbstractParsedCommand extends Redirects {
+	command?: undefined
+	args?: undefined
+}
+
+export interface ParsedCommand extends Redirects {
+	command: Token
+	args: Token[]
+}
+
+export type ParsedCommandOrAbstract = ParsedCommand | AbstractParsedCommand
+
+export interface AbstractExpandedCommand extends Redirects {
+	command?: undefined
+	args?: undefined
+}
+
+export interface ExpandedCommand extends Redirects {
+	command: string
+	args: string[]
+}
+
+export type ExpandedCommandOrAbstract = ExpandedCommand | AbstractExpandedCommand
 
 export class CommandParser {
-	private static tokenize(input: string): string[] {
+	private static tokenize(input: string): Token[] {
 		input = input.trim()
-		const tokens: string[] = []
+		const tokens: Token[] = []
 
 		let current: string = ''
 		let inQuotes: Boolean = false
@@ -38,42 +55,42 @@ export class CommandParser {
 					quoteChar = char
 				} else if (char === quoteChar) {
 					inQuotes = false
-					tokens.push(current)
+					tokens.push({ value: current, quoted: quoteChar === `"` ? 'double' : 'single' })
 					current = ''
 					continue
 				}
 			} else if (!inQuotes && `\ \| \< \>`.includes(char)) {
 				// Space, |, >, >, >>
 				if (current !== '') {
-					tokens.push(current)
+					tokens.push({ value: current, quoted: false })
 					current = ''
 				}
 
-				if (char === '|') tokens.push('|')
-				else if (char === '<') tokens.push('<')
+				if (char === '|') tokens.push({ value: '|', quoted: false })
+				else if (char === '<') tokens.push({ value: '<', quoted: false })
 				else if (char === '>') {
 					if (input[i + 1] === '>') {
 						i++
-						tokens.push('>>')
+						tokens.push({ value: '>>', quoted: false })
 					} else {
-						tokens.push('>')
+						tokens.push({ value: '>', quoted: false })
 					}
 				}
 			} else current += char
 		}
 
-		if (current) tokens.push(current)
+		if (current) tokens.push({ value: current, quoted: false })
 
 		if (inQuotes) throw new Error('Unclosed quotes in command')
 
 		return tokens
 	}
 
-	private static splitByPipe(tokens: string[]): string[][] {
-		const parts = []
+	private static splitByPipe(tokens: Token[]): Token[][] {
+		const parts: Token[][] = []
 		let lastI = 0
 		for (let i = 0; i < tokens.length; i++) {
-			if (tokens[i] === '|') {
+			if (tokens[i].value === '|') {
 				if (lastI === i) throw new Error("Two consecutive '|' symbols") // TODO: может убрать?
 				parts.push(tokens.slice(lastI, i))
 				lastI = i + 1
@@ -83,12 +100,12 @@ export class CommandParser {
 		return parts
 	}
 
-	private static extractRedirects(pipes: string[][]): {
-		pipeTokens: string[]
+	private static extractRedirects(pipes: Token[][]): {
+		pipeTokens: Token[]
 		redirects: Redirects
 	}[] {
 		const elements: {
-			pipeTokens: string[]
+			pipeTokens: Token[]
 			redirects: Redirects
 		}[] = []
 
@@ -96,22 +113,22 @@ export class CommandParser {
 			const redirects: Redirects = {}
 
 			for (let i = 0; i < pipe.length - 1; i++) {
-				if (pipe[i] === '<') {
-					redirects.redirectInput = pipe[i + 1]
+				if (pipe[i].value === '<') {
+					redirects.redirectInput = pipe[i + 1].value
 					pipe.splice(i, 2)
 					i--
-				} else if (pipe[i] === '>') {
-					redirects.redirectOutput = { type: '>', file: pipe[i + 1] }
+				} else if (pipe[i].value === '>') {
+					redirects.redirectOutput = { type: '>', file: pipe[i + 1].value }
 					pipe.splice(i, 2)
 					i--
-				} else if (pipe[i] === '>>') {
-					redirects.redirectOutput = { type: '>>', file: pipe[i + 1] }
+				} else if (pipe[i].value === '>>') {
+					redirects.redirectOutput = { type: '>>', file: pipe[i + 1].value }
 					pipe.splice(i, 2)
 					i--
 				}
 			}
 
-			if (/<|>|>>/.test(pipe[pipe.length - 1]))
+			if (/<|>|>>/.test(pipe[pipe.length - 1]?.value))
 				throw new Error('Redirect symbol at the end of pipe')
 
 			elements.push({
@@ -125,11 +142,11 @@ export class CommandParser {
 
 	private static parseCommandsFromPipesWithRedirects(
 		pipesWithRedirects: {
-			pipeTokens: string[]
+			pipeTokens: Token[]
 			redirects: Redirects
 		}[],
-	): ParsedCommand[] {
-		const commands: ParsedCommand[] = []
+	): ParsedCommandOrAbstract[] {
+		const commands: ParsedCommandOrAbstract[] = []
 
 		for (const pipeWithRedirects of pipesWithRedirects) {
 			if (pipeWithRedirects.pipeTokens.length === 0)
@@ -145,7 +162,7 @@ export class CommandParser {
 		return commands
 	}
 
-	public static parse(input: string): ParsedCommand[] {
+	public static parse(input: string): ParsedCommandOrAbstract[] {
 		const tokens = this.tokenize(input)
 		const pipes = this.splitByPipe(tokens)
 		const pipesWithRedirects = this.extractRedirects(pipes)
