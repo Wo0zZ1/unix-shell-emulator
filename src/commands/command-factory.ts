@@ -22,6 +22,7 @@ export class CommandFactory {
 		this.commandRegistry.register('cat', require('./cat.command').CatCommand)
 		this.commandRegistry.register('clear', require('./clear.command').ClearCommand)
 		this.commandRegistry.register('savefs', require('./savefs.command').SavefsCommand)
+		this.commandRegistry.register('cp', require('./cp.command').SaveCpCommand)
 	}
 
 	public getCommand(name: string): BaseCommand | null {

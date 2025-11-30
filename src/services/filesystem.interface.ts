@@ -15,6 +15,10 @@ export interface IMoveOptions {
 	rename?: boolean
 }
 
+export interface ICpOptions {
+	recursive?: boolean
+}
+
 export interface IFileSystemService {
 	// Операции с директориями
 	listDirectory(path?: string): string
@@ -28,6 +32,7 @@ export interface IFileSystemService {
 	createFile(path: string): void
 	deleteFile(path: string, options?: IDeleteFileOptions): void
 	moveFileOrDirectory(from: string, to: string, options?: IMoveOptions): void
+	copyFileOrDirectory(from: string, to: string, options?: ICpOptions): void
 
 	// Утилиты
 	getCurrentPath(): string

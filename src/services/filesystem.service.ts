@@ -1,5 +1,6 @@
 import { VFS } from '../vfs'
 import {
+	ICpOptions,
 	ICreateDirectoryOptions,
 	IDeleteDirectoryOptions,
 	IDeleteFileOptions,
@@ -47,6 +48,10 @@ export class FileSystemService implements IFileSystemService {
 
 	moveFileOrDirectory(from: string, to: string, options?: IMoveOptions): void {
 		this.vfs.move(from, to, { rename: options?.rename })
+	}
+
+	copyFileOrDirectory(from: string, to: string, options?: ICpOptions): void {
+		this.vfs.copy(from, to, { recursive: options?.recursive })
 	}
 
 	getCurrentPath(): string {

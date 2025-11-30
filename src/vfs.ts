@@ -14,7 +14,7 @@ import {
 	VFSNotADirectory,
 } from './errors/vfs-error'
 import { DEFAULT_VFS_STRUCTURE } from './vfs-default'
-import VFSParser from './vfs-praser'
+import VFSParser from './vfs-parser'
 
 export type VFSContentEncoding = 'base64' | 'utf-8'
 
@@ -54,6 +54,10 @@ export interface VFSDeleteOptions {
 
 export interface VFSMoveOptions {
 	rename?: boolean
+}
+
+export interface VFSCopyOptions {
+	recursive?: boolean
 }
 
 export class VFS {
@@ -141,6 +145,14 @@ export class VFS {
 		const resolvedPathFrom = this.resolvePath(from)
 		const resolvedPathTo = this.resolvePath(to)
 		this.moveNode(resolvedPathFrom, resolvedPathTo, options?.rename ?? false)
+	}
+
+	public copy(from: string, to: string, options?: VFSCopyOptions): void {
+		const resolvedPathFrom = this.resolvePath(from)
+		const resolvedPathTo = this.resolvePath(to)
+		this.copyNode(resolvedPathFrom, resolvedPathTo, {
+			recursive: options?.recursive ?? false,
+		})
 	}
 
 	public delete(path: string, options?: VFSDeleteOptions): void {
@@ -232,17 +244,7 @@ export class VFS {
 			if (!childrenNode) {
 				if (!options?.recursive) throw new VFSDirectoryNotFound(currentPath)
 
-				const newNode: VFSDirectoryNode = {
-					name: segment,
-					type: 'directory',
-					children: [],
-					metadata: {
-						createdAt: new Date(),
-						updatedAt: new Date(),
-						owner: 'root',
-						permissions: 'rwxr-xr-x',
-					},
-				}
+				const newNode = this.createEmptyDirectoryNode(segment, 'user')
 				currentNode.children.push(newNode)
 
 				childrenNode = newNode
@@ -321,6 +323,42 @@ export class VFS {
 		}
 	}
 
+	private copyNode(
+		resolvedPathFrom: string,
+		resolvedPathTo: string,
+		options: VFSCopyOptions,
+	) {
+		const nodeToCopy = this.getNodeByPath(resolvedPathFrom)
+		if (!nodeToCopy) throw new VFSFileOrDirectoryNotFound(resolvedPathFrom)
+
+		let targetDirectory = this.getNodeByPath(resolvedPathTo)
+
+		if (!options.recursive && !targetDirectory) {
+			throw new VFSDirectoryNotFound(resolvedPathTo)
+		} else {
+			if (!targetDirectory) {
+				targetDirectory = this.createEmptyDirectoryNode(
+					this.getFileNameByPath(resolvedPathTo),
+					'user',
+				)
+
+				this.createNode(resolvedPathTo, targetDirectory, {
+					recursive: true,
+				})
+			}
+		}
+		if (targetDirectory.type !== 'directory') throw new VFSNotADirectory(resolvedPathTo)
+
+		const existingNode = targetDirectory.children.find(
+			child => child.name === nodeToCopy.name,
+		)
+		if (existingNode) throw new VFSFileOrDirectoryAlreadyExists(resolvedPathTo)
+
+		const deepCopy = structuredClone(nodeToCopy)
+		targetDirectory.children.push(deepCopy)
+		targetDirectory.metadata.updatedAt = new Date()
+	}
+
 	private deleteNode(targetPath: string, options?: VFSDeleteOptions): void {
 		const node = this.getNodeByPath(targetPath)
 
@@ -346,6 +384,24 @@ export class VFS {
 
 		parentDirectory.children.splice(index, 1)
 		parentDirectory.metadata.updatedAt = new Date()
+	}
+
+	private createEmptyDirectoryNode(
+		directoryName: string,
+		owner: string,
+	): VFSDirectoryNode {
+		const newDirectory: VFSDirectoryNode = {
+			type: 'directory',
+			name: directoryName,
+			children: [],
+			metadata: {
+				owner: owner,
+				permissions: 'rwxr-xr-x',
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
+		}
+		return newDirectory
 	}
 
 	/**
