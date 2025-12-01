@@ -7,7 +7,7 @@ export class ClearCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Clear screen'
+		return 'Clear screen\n\nUsage:\n  clear'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

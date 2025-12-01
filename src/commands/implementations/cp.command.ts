@@ -11,7 +11,7 @@ export class CpCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Copy files or directories'
+		return 'Copy files or directories\n\nUsage:\n  cp [-r] <source> <destination>\n\nArguments:\n  source         Source file or directory\n  destination    Destination path\n\nFlags:\n  -r, --recursive  Copy directories recursively\n  -h, --help       Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

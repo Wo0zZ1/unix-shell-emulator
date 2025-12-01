@@ -18,6 +18,7 @@ import {
 	GrepCommand,
 	HeadCommand,
 	TailCommand,
+	HelpCommand,
 } from '../implementations'
 import { BaseCommand } from './base-command'
 import { CommandRegistry } from './command-registry'
@@ -50,6 +51,7 @@ export class CommandFactory {
 		this.commandRegistry.register('grep', GrepCommand)
 		this.commandRegistry.register('head', HeadCommand)
 		this.commandRegistry.register('tail', TailCommand)
+		this.commandRegistry.register('help', HelpCommand)
 	}
 
 	public getCommand(name: string): BaseCommand | null {

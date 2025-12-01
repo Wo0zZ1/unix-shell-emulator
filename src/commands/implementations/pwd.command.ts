@@ -7,7 +7,7 @@ export class PwdCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Print working directory'
+		return 'Print working directory\n\nUsage:\n  pwd'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

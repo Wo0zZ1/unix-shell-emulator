@@ -7,7 +7,7 @@ export class ExitCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Terminate the terminal emulator session'
+		return 'Terminate the terminal emulator session\n\nUsage:\n  exit'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

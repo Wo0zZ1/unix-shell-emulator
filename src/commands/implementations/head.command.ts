@@ -11,7 +11,7 @@ export class HeadCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Print first 10 lines of FILEs (or stdin)'
+		return 'Print first 10 lines of FILEs (or stdin)\n\nUsage:\n  head [-n NUM] <file>...\n\nArguments:\n  file    File(s) to read (default: stdin)\n\nFlags:\n  -n NUM           Print first NUM lines instead of 10\n  -h, --help       Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

@@ -1,5 +1,5 @@
-import { ShellEmulator, IExecuteResponse } from "../../core/shell-emulator"
-import { IBaseCommandOptions, BaseCommand } from "../core/base-command"
+import { ShellEmulator, IExecuteResponse } from '../../core/shell-emulator'
+import { IBaseCommandOptions, BaseCommand } from '../core/base-command'
 
 export interface ISavefsCommandOptions extends IBaseCommandOptions {}
 
@@ -9,7 +9,7 @@ export class SavefsCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Save the virtual file system to an XML file'
+		return 'Save the virtual file system to an XML file\n\nUsage:\n  savefs [filename]\n\nArguments:\n  filename    Output XML file name (default: vfs-snapshot.xml)'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

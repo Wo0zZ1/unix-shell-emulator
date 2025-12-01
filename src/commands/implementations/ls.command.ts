@@ -9,7 +9,7 @@ export class LsCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'List directory contents'
+		return 'List directory contents\n\nUsage:\n  ls [path]\n\nArguments:\n  path    Directory path (default: current directory)'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

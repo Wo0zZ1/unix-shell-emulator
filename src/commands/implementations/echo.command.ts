@@ -9,7 +9,7 @@ export class EchoCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Displays a line of text'
+		return 'Displays a line of text\n\nUsage:\n  echo [text]...\n\nArguments:\n  text    Text to display'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

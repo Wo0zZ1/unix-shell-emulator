@@ -11,7 +11,7 @@ export class RmdirCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Delete an empty directory'
+		return 'Delete an empty directory\n\nUsage:\n  rmdir [-p] <directory>...\n\nArguments:\n  directory    Directory path(s) to remove\n\nFlags:\n  -p, --parents    Remove parent directories as needed\n  -h, --help       Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

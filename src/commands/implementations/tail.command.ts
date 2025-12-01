@@ -1,5 +1,5 @@
-import { ShellEmulator, IExecuteResponse } from "../../core/shell-emulator"
-import { IBaseCommandOptions, BaseCommand } from "../core/base-command"
+import { ShellEmulator, IExecuteResponse } from '../../core/shell-emulator'
+import { IBaseCommandOptions, BaseCommand } from '../core/base-command'
 
 export interface ITailCommandOptions extends IBaseCommandOptions {
 	numberOfLines: number
@@ -11,7 +11,7 @@ export class TailCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Print last 10 lines of FILEs (or stdin)'
+		return 'Print last 10 lines of FILEs (or stdin)\n\nUsage:\n  tail [-n NUM] <file>...\n\nArguments:\n  file    File(s) to read (default: stdin)\n\nFlags:\n  -n NUM           Print last NUM lines instead of 10\n  -h, --help       Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

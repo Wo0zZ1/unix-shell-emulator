@@ -1,5 +1,5 @@
-import { ShellEmulator, IExecuteResponse } from "../../core/shell-emulator"
-import { IBaseCommandOptions, BaseCommand } from "../core/base-command"
+import { ShellEmulator, IExecuteResponse } from '../../core/shell-emulator'
+import { IBaseCommandOptions, BaseCommand } from '../core/base-command'
 
 export interface IRmCommandOptions extends IBaseCommandOptions {
 	recursive: boolean
@@ -11,7 +11,7 @@ export class RmCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Delete files or directories (use -r for directories)'
+		return 'Delete files or directories\n\nUsage:\n  rm [-r] <file>...\n\nArguments:\n  file    File or directory path(s) to remove\n\nFlags:\n  -r, --recursive  Remove directories and their contents recursively\n  -h, --help       Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

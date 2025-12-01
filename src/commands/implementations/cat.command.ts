@@ -9,7 +9,7 @@ export class CatCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return "Print the file's content"
+		return "Print the file's content\n\nUsage:\n  cat <file>\n\nArguments:\n  file    File path to read"
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

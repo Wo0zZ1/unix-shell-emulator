@@ -9,7 +9,7 @@ export class MvCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Move files and directories'
+		return 'Move files and directories\n\nUsage:\n  mv <source>... <destination>\n\nArguments:\n  source         Source file(s) or directory\n  destination    Destination path'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

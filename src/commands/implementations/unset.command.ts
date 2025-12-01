@@ -9,7 +9,7 @@ export class UnsetCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Unsets environment variables'
+		return 'Unsets environment variables\n\nUsage:\n  unset <name>...\n\nArguments:\n  name    Variable name(s) to unset'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

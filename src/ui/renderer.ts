@@ -172,8 +172,8 @@ export class TerminalRenderer {
 	}
 
 	private printWelcomeMessage(): void {
-		this.printLine('Terminal Emulator v0.3')
-		this.printLine('Type "exit" to quit or try "ls", "cd" and "pwd" commands')
+		this.printLine('Terminal Emulator v0.5.0')
+		this.printLine('Type "help" to see available commands or "exit" to quit')
 		this.printLine('---------------------------------------------')
 	}
 

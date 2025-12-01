@@ -12,7 +12,7 @@ export class GrepCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Searches for patterns in files'
+		return 'Searches for patterns in files\n\nUsage:\n  grep [-v] [-i] <pattern> [file]...\n\nArguments:\n  pattern    Search pattern\n  file       File(s) to search (default: stdin)\n\nFlags:\n  -v, --invert-match  Select non-matching lines\n  -i, --ignore-case   Ignore case distinctions in patterns\n  -h, --help          Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

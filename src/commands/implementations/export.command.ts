@@ -9,7 +9,7 @@ export class ExportCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Sets environment variables'
+		return 'Sets environment variables\n\nUsage:\n  export <name>=<value>...\n\nArguments:\n  name     Variable name\n  value    Variable value'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

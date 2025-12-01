@@ -7,7 +7,7 @@ export class CdCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Change the current working directory'
+		return 'Change the current working directory\n\nUsage:\n  cd <directory>\n\nArguments:\n  directory    Target directory path'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

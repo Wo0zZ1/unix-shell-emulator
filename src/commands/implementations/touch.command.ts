@@ -1,5 +1,5 @@
-import { ShellEmulator, IExecuteResponse } from "../../core/shell-emulator"
-import { IBaseCommandOptions, BaseCommand } from "../core/base-command"
+import { ShellEmulator, IExecuteResponse } from '../../core/shell-emulator'
+import { IBaseCommandOptions, BaseCommand } from '../core/base-command'
 
 export interface ITouchCommandOptions extends IBaseCommandOptions {}
 
@@ -9,7 +9,7 @@ export class TouchCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Create an empty file(s)'
+		return 'Create an empty file(s)\n\nUsage:\n  touch <file>...\n\nArguments:\n  file    File path(s) to create'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {

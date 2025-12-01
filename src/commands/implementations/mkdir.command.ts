@@ -11,7 +11,7 @@ export class MkdirCommand extends BaseCommand {
 	}
 
 	getDescription(): string {
-		return 'Create an empty directory(s)'
+		return 'Create an empty directory(s)\n\nUsage:\n  mkdir [-p] <directory>...\n\nArguments:\n  directory    Directory path(s) to create\n\nFlags:\n  -p, --parents    Create parent directories as needed\n  -h, --help       Show this help message'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
