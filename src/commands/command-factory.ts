@@ -27,6 +27,7 @@ export class CommandFactory {
 		this.commandRegistry.register('export', require('./export.command').ExportCommand)
 		this.commandRegistry.register('unset', require('./unset.command').UnsetCommand)
 		this.commandRegistry.register('grep', require('./grep.command').GrepCommand)
+		this.commandRegistry.register('head', require('./head.command').HeadCommand)
 	}
 
 	public getCommand(name: string): BaseCommand | null {

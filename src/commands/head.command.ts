@@ -1,46 +1,43 @@
 import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
-export interface IGrepCommandOptions extends IBaseCommandOptions {
-	invertMatch: boolean
-	ignoreCase: boolean
+export interface IHeadCommandOptions extends IBaseCommandOptions {
+	numberOfLines: number
 }
 
-export class GrepCommand extends BaseCommand {
+export class HeadCommand extends BaseCommand {
 	getName(): string {
-		return 'grep'
+		return 'head'
 	}
 
 	getDescription(): string {
-		return 'Searches for patterns in files'
+		return 'Print first 10 lines of FILEs (or stdin)'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1)
 
-			const options: IGrepCommandOptions = {
+			const options: IHeadCommandOptions = {
 				help: false,
-				invertMatch: false,
-				ignoreCase: false,
+				numberOfLines: 10,
 			}
 
-			const input: string[] = []
+			const filePaths: string[] = []
 
-			for (const arg of args) {
+			for (let i = 0; i < args.length; i++) {
+				const arg = args[i]
 				if (arg === '-h' || arg === '--help') options.help = true
-				else if (arg === '-v' || arg === '--invert-match') options.invertMatch = true
-				else if (arg === '-i' || arg === '--ignore-case') options.ignoreCase = true
-				else input.push(arg)
+				else if (arg === '-n' || arg === '--lines') {
+					const nextArg = args[++i]
+					if (!nextArg) throw new Error(`option requires an argument: n`)
+					window.electronAPI.serverLog(nextArg)
+					if (isNaN(Number(nextArg))) throw new Error(`invalid number ${nextArg}`)
+					options.numberOfLines = Number(nextArg)
+				} else filePaths.push(arg)
 			}
 
 			if (options.help) return { output: this.getDescription() }
-
-			if (input.length < 2)
-				throw new Error('Usage: grep [options] pattern file1 [file2 ...]')
-
-			let pattern = new RegExp(input[0], options.ignoreCase ? 'i' : '')
-			const filePaths = input.slice(1)
 
 			const matchs: string[] = []
 			const errIndexes: number[] = []
@@ -48,14 +45,7 @@ export class GrepCommand extends BaseCommand {
 				const filePath = filePaths[i]
 				try {
 					const fileContent = shell.getFileSystem().readFile(filePath)
-					matchs.push(
-						fileContent
-							.split('\n')
-							.filter(line =>
-								options.invertMatch ? !pattern.test(line) : pattern.test(line),
-							)
-							.join('\n'),
-					)
+					matchs.push(fileContent.split('\n').slice(0, options.numberOfLines).join('\n'))
 				} catch (error) {
 					errIndexes.push(i)
 					matchs.push(`grep: ${filePath}: No such file`)
@@ -67,8 +57,12 @@ export class GrepCommand extends BaseCommand {
 			else {
 				for (let i = 0; i < filePaths.length; i++)
 					if (matchs[i]) {
-						if (errIndexes.includes(i)) output.push(matchs[i])
-						else output.push(`${filePaths[i]}:${matchs[i]}`)
+						if (errIndexes.includes(i)) {
+							output.push(matchs[i])
+						} else {
+							output.push(`==> ${filePaths[i]} <==`)
+							output.push(`${filePaths[i]}:${matchs[i]}`)
+						}
 					}
 			}
 
