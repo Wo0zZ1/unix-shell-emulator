@@ -1,0 +1,21 @@
+import { ShellEmulator, IExecuteResponse } from '../../core/shell-emulator'
+import { BaseCommand } from '../core/base-command'
+
+export class ClearCommand extends BaseCommand {
+	getName(): string {
+		return 'clear'
+	}
+
+	getDescription(): string {
+		return 'Clear screen'
+	}
+
+	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
+		try {
+			this.validateArgs(args, 0, 0)
+			return { output: '', extra: { clearTerminal: true } }
+		} catch (error) {
+			return { output: `clear: ${(error as Error).message}`, error: true }
+		}
+	}
+}
