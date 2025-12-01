@@ -100,6 +100,10 @@ export class ShellEmulator {
 		await window.electronAPI.saveFile(fileName, content)
 	}
 
+	public getCommandRegistry() {
+		return this.commandFactory.getCommandRegistry()
+	}
+
 	public getEnvironmentManager(): EnvironmentManager {
 		return this.envManager
 	}

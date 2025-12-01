@@ -34,4 +34,8 @@ export class CommandFactory {
 	public getCommand(name: string): BaseCommand | null {
 		return this.commandRegistry.get(name)
 	}
+
+	public getCommandRegistry(): CommandRegistry {
+		return this.commandRegistry
+	}
 }

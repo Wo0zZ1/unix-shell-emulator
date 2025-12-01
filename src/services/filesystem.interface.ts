@@ -1,3 +1,5 @@
+import { VFSNode } from '../vfs'
+
 export interface ICreateDirectoryOptions {
 	parents?: boolean
 }
@@ -36,6 +38,8 @@ export interface IFileSystemService {
 
 	// Утилиты
 	getCurrentPath(): string
+	resolvePath(path: string): string
+	getNode(path: string): VFSNode
 	exists(path: string): boolean
 	isFile(path: string): boolean
 	isDirectory(path: string): boolean

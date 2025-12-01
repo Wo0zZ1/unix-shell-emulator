@@ -4,9 +4,11 @@ import { HistoryManager } from './history-manager'
 import { ShellEmulator } from './shell-emulator'
 
 import { getErrorMessage } from './errors/error-handler'
+import { AutoCompleter } from './auto-completer'
 
 export class TerminalRenderer {
 	private shell!: ShellEmulator
+	private autoCompleter!: AutoCompleter
 	private historyManager = new HistoryManager()
 
 	private terminal: HTMLElement
@@ -48,6 +50,10 @@ export class TerminalRenderer {
 		try {
 			this.printLine('Trying to download VFS configuration...')
 			this.shell = await ShellEmulator.create(VFSPath)
+			this.autoCompleter = new AutoCompleter(
+				this.shell.getCommandRegistry(),
+				this.shell.getFileSystem(),
+			)
 			this.printLine(`VFS configuration successfully loaded`)
 		} catch (error) {
 			const errorMessage = getErrorMessage(error)
@@ -58,6 +64,10 @@ export class TerminalRenderer {
 
 	private async downloadDefaultVFS(): Promise<void> {
 		this.shell = await ShellEmulator.create()
+		this.autoCompleter = new AutoCompleter(
+			this.shell.getCommandRegistry(),
+			this.shell.getFileSystem(),
+		)
 		this.printLine(`Loaded default VFS configuration`)
 	}
 
@@ -74,9 +84,9 @@ export class TerminalRenderer {
 			this.printLine(`Executing startup script: ${scriptPath}`)
 			this.printLine('---------------------------------------------')
 
-		let someError: boolean = false
-		for (const command of commands)
-			someError = (await this.executeCommand(command, true)) || someError
+			let someError: boolean = false
+			for (const command of commands)
+				someError = (await this.executeCommand(command, true)) || someError
 
 			this.printLine('---------------------------------------------')
 			let finishMessage = 'Startup script execution completed'
@@ -110,13 +120,18 @@ export class TerminalRenderer {
 				this.navigateHistoryDown()
 				break
 			case 'Tab':
-				// TODO РЕАЛИЗОВАТЬ АВТОДОПОЛНЕНИЕ
+				const inputValue = this.getInputValue()
+				const inputComplete = this.autoCompleter.complete(inputValue)
+				this.setInputValue(inputValue + inputComplete)
 				e.preventDefault()
 				break
 		}
 	}
 
-	private async executeCommand(command: string, safeMode: boolean = false): Promise<boolean> {
+	private async executeCommand(
+		command: string,
+		safeMode: boolean = false,
+	): Promise<boolean> {
 		let withError: boolean = false
 		command = command.trim()
 

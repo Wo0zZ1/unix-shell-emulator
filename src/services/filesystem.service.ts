@@ -1,4 +1,4 @@
-import { VFS } from '../vfs'
+import { VFS, VFSNode } from '../vfs'
 import {
 	ICpOptions,
 	ICreateDirectoryOptions,
@@ -56,6 +56,14 @@ export class FileSystemService implements IFileSystemService {
 
 	getCurrentPath(): string {
 		return this.vfs.getCurrentPath()
+	}
+
+	getNode(path: string): VFSNode {
+		return this.vfs.get(path)
+	}
+
+	resolvePath(path: string): string {
+		return this.vfs.resolvePath(path)
 	}
 
 	exists(path: string): boolean {

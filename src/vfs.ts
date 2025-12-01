@@ -118,6 +118,13 @@ export class VFS {
 		return file.content.replace(/\\n/g, '\n')
 	}
 
+	public get(path: string): VFSNode {
+		const resolvedPath = this.resolvePath(path)
+		const node = this.getNodeByPath(resolvedPath)
+		if (!node) throw new VFSFileOrDirectoryNotFound(resolvedPath)
+		return node
+	}
+
 	public create(
 		path: string,
 		type: 'file' | 'directory',
