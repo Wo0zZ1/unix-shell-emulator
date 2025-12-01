@@ -1,24 +1,25 @@
+import { match } from 'assert'
 import { IExecuteResponse, ShellEmulator } from '../shell-emulator'
 import { BaseCommand, IBaseCommandOptions } from './base-command'
 
-export interface IHeadCommandOptions extends IBaseCommandOptions {
+export interface ITailCommandOptions extends IBaseCommandOptions {
 	numberOfLines: number
 }
 
-export class HeadCommand extends BaseCommand {
+export class TailCommand extends BaseCommand {
 	getName(): string {
-		return 'head'
+		return 'tail'
 	}
 
 	getDescription(): string {
-		return 'Print first 10 lines of FILEs (or stdin)'
+		return 'Print last 10 lines of FILEs (or stdin)'
 	}
 
 	async execute(args: string[], shell: ShellEmulator): Promise<IExecuteResponse> {
 		try {
 			this.validateArgs(args, 1)
 
-			const options: IHeadCommandOptions = {
+			const options: ITailCommandOptions = {
 				help: false,
 				numberOfLines: 10,
 			}
@@ -31,7 +32,7 @@ export class HeadCommand extends BaseCommand {
 				else if (arg === '-n' || arg === '--lines') {
 					const nextArg = args[++i]
 					if (!nextArg) throw new Error(`option requires an argument: n`)
-					const number = Number(nextArg)
+					const number = Math.abs(Number(nextArg))
 					if (isNaN(number)) throw new Error(`invalid number ${nextArg}`)
 					options.numberOfLines = number
 				} else filePaths.push(arg)
@@ -45,7 +46,9 @@ export class HeadCommand extends BaseCommand {
 				const filePath = filePaths[i]
 				try {
 					const fileContent = shell.getFileSystem().readFile(filePath)
-					matchs.push(fileContent.split('\n').slice(0, options.numberOfLines).join('\n'))
+					if (options.numberOfLines === 0) matchs.push('')
+					else
+						matchs.push(fileContent.split('\n').slice(-options.numberOfLines).join('\n'))
 				} catch (error) {
 					errIndexes.push(i)
 					matchs.push(`grep: ${filePath}: No such file`)
