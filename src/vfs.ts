@@ -115,7 +115,7 @@ export class VFS {
 		const file = this.getNodeByPath(resolvedPath)
 		if (!file) throw new VFSFileNotFound(resolvedPath)
 		if (file.type !== 'file') throw new VFSNotAFile(resolvedPath)
-		return file.content
+		return file.content.replace(/\\n/g, '\n')
 	}
 
 	public create(

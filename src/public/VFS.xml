@@ -19,7 +19,7 @@
   </node>
   <node owner="root" permissions="rwxr-xr-x" createdAt="2024-01-01T00:00:00Z" updatedAt="2024-01-01T00:00:00Z" name="bin" type="directory">
     <node owner="root" permissions="rwxr-xr-x" createdAt="2024-01-05T12:00:00Z" updatedAt="2024-01-05T12:00:00Z" name="script.sh" type="file">
-      <content encoding="utf-8">#!/bin/bash\necho "Hello"</content>
+      <content encoding="utf-8">#!/bin/bash\necho "Hello world!"\necho "My name is Max!"</content>
     </node>
   </node>
 </vfs>
