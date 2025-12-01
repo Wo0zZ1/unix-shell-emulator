@@ -5,7 +5,7 @@ export interface ICpCommandOptions extends IBaseCommandOptions {
 	recursive?: boolean
 }
 
-export class SaveCpCommand extends BaseCommand {
+export class CpCommand extends BaseCommand {
 	getName(): string {
 		return 'cp'
 	}
@@ -38,7 +38,7 @@ export class SaveCpCommand extends BaseCommand {
 
 			return { output: '' }
 		} catch (error) {
-			return { output: `savefs: ${(error as Error).message}`, error: true }
+			return { output: `cp: ${(error as Error).message}`, error: true }
 		}
 	}
 }

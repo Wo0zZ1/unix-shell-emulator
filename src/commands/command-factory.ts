@@ -1,5 +1,24 @@
 import { CommandRegistry } from './command-registry'
 import type { BaseCommand } from './base-command'
+import { LsCommand } from './ls.command'
+import { CatCommand } from './cat.command'
+import { CdCommand } from './cd.command'
+import { ClearCommand } from './clear.command'
+import { CpCommand } from './cp.command'
+import { EchoCommand } from './echo.command'
+import { ExitCommand } from './exit.command'
+import { ExportCommand } from './export.command'
+import { GrepCommand } from './grep.command'
+import { HeadCommand } from './head.command'
+import { MkdirCommand } from './mkdir.command'
+import { MvCommand } from './mv.command'
+import { PwdCommand } from './pwd.command'
+import { RmCommand } from './rm.command'
+import { RmdirCommand } from './rmdir.command'
+import { SavefsCommand } from './savefs.command'
+import { TailCommand } from './tail.command'
+import { TouchCommand } from './touch.command'
+import { UnsetCommand } from './unset.command'
 
 export class CommandFactory {
 	private commandRegistry: CommandRegistry
@@ -10,25 +29,25 @@ export class CommandFactory {
 	}
 
 	private initializeCommands(): void {
-		this.commandRegistry.register('ls', require('./ls.command').LsCommand)
-		this.commandRegistry.register('cd', require('./cd.command').CdCommand)
-		this.commandRegistry.register('exit', require('./exit.command').ExitCommand)
-		this.commandRegistry.register('pwd', require('./pwd.command').PwdCommand)
-		this.commandRegistry.register('mkdir', require('./mkdir.command').MkdirCommand)
-		this.commandRegistry.register('rmdir', require('./rmdir.command').RmdirCommand)
-		this.commandRegistry.register('touch', require('./touch.command').TouchCommand)
-		this.commandRegistry.register('rm', require('./rm.command').RmCommand)
-		this.commandRegistry.register('mv', require('./mv.command').MvCommand)
-		this.commandRegistry.register('cat', require('./cat.command').CatCommand)
-		this.commandRegistry.register('clear', require('./clear.command').ClearCommand)
-		this.commandRegistry.register('savefs', require('./savefs.command').SavefsCommand)
-		this.commandRegistry.register('cp', require('./cp.command').SaveCpCommand)
-		this.commandRegistry.register('echo', require('./echo.command').EchoCommand)
-		this.commandRegistry.register('export', require('./export.command').ExportCommand)
-		this.commandRegistry.register('unset', require('./unset.command').UnsetCommand)
-		this.commandRegistry.register('grep', require('./grep.command').GrepCommand)
-		this.commandRegistry.register('head', require('./head.command').HeadCommand)
-		this.commandRegistry.register('tail', require('./tail.command').TailCommand)
+		this.commandRegistry.register('ls', LsCommand)
+		this.commandRegistry.register('cd', CdCommand)
+		this.commandRegistry.register('exit', ExitCommand)
+		this.commandRegistry.register('pwd', PwdCommand)
+		this.commandRegistry.register('mkdir', MkdirCommand)
+		this.commandRegistry.register('rmdir', RmdirCommand)
+		this.commandRegistry.register('touch', TouchCommand)
+		this.commandRegistry.register('rm', RmCommand)
+		this.commandRegistry.register('mv', MvCommand)
+		this.commandRegistry.register('cat', CatCommand)
+		this.commandRegistry.register('clear', ClearCommand)
+		this.commandRegistry.register('savefs', SavefsCommand)
+		this.commandRegistry.register('cp', CpCommand)
+		this.commandRegistry.register('echo', EchoCommand)
+		this.commandRegistry.register('export', ExportCommand)
+		this.commandRegistry.register('unset', UnsetCommand)
+		this.commandRegistry.register('grep', GrepCommand)
+		this.commandRegistry.register('head', HeadCommand)
+		this.commandRegistry.register('tail', TailCommand)
 	}
 
 	public getCommand(name: string): BaseCommand | null {
